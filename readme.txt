@@ -80,6 +80,12 @@ but if you wanted to set the file size per user you could use this filter.
 
 == Changelog ==
 
+= 1.1.5 =
+
+Release date:
+
+* Maintenance: Add functionality for running processes on plugin auto-upgrade.
+
 = 1.1.4 =
 
 Release date: 12 June 2017
