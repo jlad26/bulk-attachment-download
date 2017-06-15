@@ -59,7 +59,7 @@ function jabd_admin_enqueue_scripts( $hook ) {
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
-/*Plugin activation and deactivation*/
+/*Plugin activation, deactivation and upgrade*/
 
 /**
  * Plugin activation.
@@ -123,6 +123,36 @@ function jabd_delete_download_posts() {
 	}
 }
 add_action( 'jabd_hourly_event', 'jabd_delete_download_posts' );
+
+/**
+ * Run upgrade processes on upgrade.
+ * @hooked plugins_loaded
+ */
+function jabd_check_version() {
+	$prev_version = get_option( 'jabd_version' );
+	if ( JABD_VERSION !== $prev_version ) {
+		update_option( 'jabd_version', JABD_VERSION );
+		jabd_on_plugin_upgrade( $prev_version );
+	}
+}
+
+/**
+ * Processes to be run on upgrade.
+ */
+function jabd_on_plugin_upgrade( $prev_version ) {
+	if ( empty( $prev_version ) ) {
+		$prev_version = 0;
+	}
+	$current_version = intval( str_replace( '.', '', JABD_VERSION ) );
+	
+	// If 1.1.4 or earlier (prior to storing of version)...
+	if ( ! $prev_version ) {
+		// Remove deprecated options and usermeta from db
+		delete_option( 'jabd_notices' );
+		delete_metadata( 'user', 0, 'jabd_dismissed_notices', false, true );
+	}
+	
+}
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*Plugin settings*/
