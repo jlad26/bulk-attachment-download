@@ -132,7 +132,7 @@ function jabd_check_version() {
 	$prev_version = get_option( 'jabd_version' );
 	if ( JABD_VERSION !== $prev_version ) {
 		update_option( 'jabd_version', JABD_VERSION );
-		jabd_on_plugin_upgrade( $prev_version );
+		add_action( 'admin_init', 'jabd_on_plugin_upgrade', $prev_version );
 	}
 }
 

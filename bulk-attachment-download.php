@@ -35,7 +35,7 @@ require_once JABD_PLUGIN_DIR.'incl/admin-notice-manager/class-admin-notice-manag
 Bulk_Attachment_Download_Admin_Notice_Manager::init( array(
 	'manager_id'		=>	'jabd',
 	'text_domain'		=>	'st-bulk-download',
-	'version'			=>	'1.1.3'
+	'version'			=>	'1.1.5'
 ) );
 
 //internationalization
