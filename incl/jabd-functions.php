@@ -106,7 +106,8 @@ function jabd_on_deactivation() {
 function jabd_delete_download_posts() {
 	$download_posts = get_posts( array(
 		'post_type'			=> 'jabd_download',
-		'posts_per_page'	=> -1
+		'posts_per_page'	=> -1,
+		'post_status'		=> 'all'
 	) );
 	if ( ! empty( $download_posts ) ) {
 		date_default_timezone_set('UTC');
@@ -472,11 +473,29 @@ function jabd_register_download_post_type() {
 		'show_in_nav_menus'		=> false,
 		'query_var'				=> false,
 		'rewrite'				=> array( 'slug' => 'downloads' ),
-		'capability_type'		=> 'post',
 		'has_archive'			=> false, 
 		'hierarchical'			=> false,
 		'supports'				=> array( 'title' ),
-		'capabilities'			=> array( 'create_posts' => 'do_not_allow' ),
+		'capabilities'			=> array(
+
+			// primitive/meta caps
+			'create_posts'           => 'do_not_allow',
+
+			// primitive caps used outside of map_meta_cap()
+			'edit_posts'             => 'upload_files',
+			'edit_others_posts'      => 'manage_options',
+			'publish_posts'          => 'upload_files',
+			'read_private_posts'     => 'read',
+
+			// primitive caps used inside of map_meta_cap()
+			'read'                   => 'read',
+			'delete_posts'           => 'upload_files',
+			'delete_private_posts'   => 'upload_files',
+			'delete_published_posts' => 'upload_files',
+			'delete_others_posts'    => 'manage_options',
+			'edit_private_posts'     => 'upload_files',
+			'edit_published_posts'   => 'upload_files'
+		),
 		'map_meta_cap'			=> true,
 	);
 	
@@ -522,7 +541,8 @@ function jabd_add_link_columns_content( $column ) {
 			break;
 			
 		case 'jabd_download_button' :
-			echo '<a href="'.get_post_permalink( $post->ID ).'"><button class="button button-primary button-large" type="button"'.('trash' == $post->post_status ? ' disabled' : ''). '>'.__( 'Download', 'st-bulk-download' ).'</button></a>';
+		$disabled = ( 'trash' == $post->post_status || ! current_user_can( 'edit_post', $post->ID ) ) ? ' disabled' : '';
+			echo '<a href="'.get_post_permalink( $post->ID ).'"><button class="button button-primary button-large" type="button"'.$disabled. '>'.__( 'Download', 'st-bulk-download' ).'</button></a>';
 			break;
 		
 	}
@@ -616,7 +636,7 @@ function jabd_request_download() {
 		
 		// check permissions
 		foreach ( $files_to_download as $file_to_download ) {
-			if ( jabd_user_can_download( $file_to_download ) ) {
+			if ( current_user_can( 'edit_post', $file_to_download->ID ) ) {
 				$permitted_files[] = $file_to_download;
 			}
 		}
@@ -999,20 +1019,6 @@ function jabd_file_path_rel_to_uploads( $file_path, $attachment, $upload_basedir
 	}
 	// otherwise return relative path
 	return apply_filters( 'jabd_file_path_rel_to_uploads', str_replace( $upload_basedir.'/', '', $file_path ), $attachment );
-}
-
-/**
- * Checks that user has permission to download
- * Default is either Admin or file owner
- */
-function jabd_user_can_download( $post ) {
-	$can_download = false;
-	if ( ! empty( $post ) and is_user_logged_in() ) {
-		if ( current_user_can( 'manage_options' ) or $post->post_author = get_current_user_id() ){
-			$can_download = true;
-		}
-	}
-	return apply_filters( 'jabd_user_can_download', $can_download, $post );
 }
 
 /**

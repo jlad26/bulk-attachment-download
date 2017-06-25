@@ -63,11 +63,20 @@ If you see error messages or your zip file is incomplete or corrupted, try sever
 That depends on the number and size of files you are downloading, and also on your host setup.
 Try downloading smaller numbers of files to get a feel for how long it takes before attempting a large download.
 
+= Who can create downloads? =
+
+Permissions are set so that:
+* Anyone who has the capability 'upload_files' can create downloads.
+* A user can download an attachment if that user has permission to edit the attachment.
+* Only users who have the capability 'manage_options' can download, edit, or delete a download that another user has created.
+
+That means that if the Wordpress default roles and capabilities are being used:
+* Administrators and editors can download any attachments.
+* Authors and contributors can download only those attachments they uploaded.
+* Only administrators can download, edit or delete a download created by another user.
+
 = What filters are available? =
 
-* `jabd_user_can_download`. The default is that only administrators can download, but that can be changed using this filter.
-If you do allow any other users to download, you may also need to make sure they have access to the Media Library -
-but that's outside the scope of this plugin.
 * `jabd_max_files_size`. Max download file size limit is set in the plugin settings in Settings > Media,
 but if you wanted to set the file size per user you could use this filter.
 
@@ -79,6 +88,14 @@ but if you wanted to set the file size per user you could use this filter.
 
 
 == Changelog ==
+
+= 1.2.0 =
+
+Release date: 25 June 2017
+
+* Maintenance: Change the permissions for downloads so that they match the permissions for managing attachments generally.
+* Maintenance: Remove the filter jabd_user_can_download.
+* Bug fix: All download post statuses (including private) are now deleted automatically by cron.
 
 = 1.1.4 =
 

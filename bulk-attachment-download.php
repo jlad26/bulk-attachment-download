@@ -4,7 +4,7 @@
  * Plugin Name:		Bulk Attachment Download
  * Plugin URI:		https://wordpress.org/plugins/bulk-attachment-download/
  * Description:		Allows bulk downloading of attachments from the Media Library
- * Version:			1.1.5
+ * Version:			1.2.0
  * Author:			Jon Anwyl
  * Author URI:		http://www.sneezingtrees.com
  * Text Domain:		st-bulk-download
@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 if ( ! defined( 'JABD_PLUGIN_DIR' ) ) define( 'JABD_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 if ( ! defined( 'JABD_PLUGIN_BASE_URL' ) ) define( 'JABD_PLUGIN_BASE_URL', plugin_dir_url( __FILE__ ) );
 if ( ! defined( 'JABD_DOWNLOADS_DIR' ) ) define( 'JABD_DOWNLOADS_DIR', 'jabd-downloads' );
-if ( ! defined( 'JABD_VERSION' ) ) define( 'JABD_VERSION', '1.1.5' );
+if ( ! defined( 'JABD_VERSION' ) ) define( 'JABD_VERSION', '1.2.0' );
 
 //include functions
 require_once JABD_PLUGIN_DIR.'incl/jabd-functions.php';
@@ -35,7 +35,7 @@ require_once JABD_PLUGIN_DIR.'incl/admin-notice-manager/class-admin-notice-manag
 Bulk_Attachment_Download_Admin_Notice_Manager::init( array(
 	'manager_id'		=>	'jabd',
 	'text_domain'		=>	'st-bulk-download',
-	'version'			=>	'1.1.5'
+	'version'			=>	'1.2.0'
 ) );
 
 //internationalization

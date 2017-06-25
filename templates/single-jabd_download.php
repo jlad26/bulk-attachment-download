@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // provide file to download if permissions checks passed
 global $post;
-if ( jabd_user_can_download( $post ) ) {
+if ( current_user_can( 'edit_post', $post->ID ) ) {
 	
 	$file_path = JABD_PLUGIN_DIR.JABD_DOWNLOADS_DIR.'/'.get_post_meta( $post->ID, 'jabd_path', true );
 	if( file_exists( $file_path ) ) {

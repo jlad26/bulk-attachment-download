@@ -7,7 +7,7 @@ if ( ! current_user_can( 'activate_plugins' ) ) {
 	return;
 }
 
-//delete any downloads
+// delete any downloads
 $download_posts = get_posts( array(
 	'post_type'			=> 'jabd_download',
 	'posts_per_page'	=> -1
@@ -22,7 +22,7 @@ if ( !empty( $download_posts ) ) {
 delete_option( 'jabd_notices' );
 delete_metadata( 'user', 0, 'jabd_dismissed_notices', false, true );
 
-//delete options, notices and usermeta
+// delete options, notices and usermeta
 delete_option( 'jabd_options' );
 require_once dirname( __FILE__ ) . '/incl/admin-notice-manager/class-admin-notice-manager.php';
 Bulk_Attachment_Download_Admin_Notice_Manager::init( array(
