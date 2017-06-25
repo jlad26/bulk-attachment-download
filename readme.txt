@@ -3,7 +3,7 @@ Contributors: janwyl
 Tags: media, attachments, bulk download, download
 Requires at least: 4.6.1
 Tested up to: 4.8
-Stable tag: 1.1.4
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -88,6 +88,12 @@ but if you wanted to set the file size per user you could use this filter.
 
 
 == Changelog ==
+
+= 1.2.1 =
+
+Release date: 
+
+* Maintenance: Delete 'jabd_version' option on uninstall.
 
 = 1.2.0 =
 

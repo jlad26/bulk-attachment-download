@@ -18,6 +18,9 @@ if ( !empty( $download_posts ) ) {
 	}
 }
 
+// remove options
+delete_option( 'jabd_version' );
+
 // remove deprecated options and usermeta
 delete_option( 'jabd_notices' );
 delete_metadata( 'user', 0, 'jabd_dismissed_notices', false, true );
