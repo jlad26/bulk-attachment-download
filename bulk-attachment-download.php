@@ -41,6 +41,74 @@ Bulk_Attachment_Download_Admin_Notice_Manager::init( array(
 //internationalization
 add_action( 'plugins_loaded', 'jabd_load_plugin_textdomain' );
 
+/*--------------------------------------------------------------------------------------------------*/
+/*Code for integration with Freemius functionality (https://freemius.com/wordpress/insights/)*/
+
+// Create a helper function for easy SDK access.
+function jabd_fs() {
+	global $jabd_fs;
+
+	if ( ! isset( $jabd_fs ) ) {
+		// Include Freemius SDK.
+		require_once dirname(__FILE__) . '/freemius/start.php';
+
+		$jabd_fs = fs_dynamic_init( array(
+			'id'                  => '1226',
+			'slug'                => 'bulk-attachment-download',
+			'type'                => 'plugin',
+			'public_key'          => 'pk_b313e39f6475c257bc3aadfbc55df',
+			'is_premium'          => false,
+			'has_addons'          => false,
+			'has_paid_plans'      => false,
+			'menu'                => array(
+				'first-path'     => 'plugins.php',
+				'account'        => false,
+				'contact'        => false,
+				'support'        => false,
+			),
+		) );
+	}
+
+	return $jabd_fs;
+}
+
+// Init Freemius.
+jabd_fs();
+// Signal that SDK was initiated.
+do_action( 'jabd_fs_loaded' );
+// Hook in uninstall actions.
+jabd_fs()->add_action('after_uninstall', 'jabd_fs_uninstall_cleanup');
+
+function jabd_fs_uninstall_cleanup() {
+
+	if ( ! current_user_can( 'activate_plugins' ) ) {
+		return;
+	}
+
+	// delete any downloads
+	$download_posts = get_posts( array(
+		'post_type'			=> 'jabd_download',
+		'posts_per_page'	=> -1
+	) );
+	if ( !empty( $download_posts ) ) {
+		foreach ( $download_posts as $download_post ) {
+			wp_delete_post( $download_post->ID, true );
+		}
+	}
+
+	// remove options
+	delete_option( 'jabd_version' );
+
+	// remove deprecated options and usermeta
+	delete_option( 'jabd_notices' );
+	delete_metadata( 'user', 0, 'jabd_dismissed_notices', false, true );
+
+	// delete options, notices and usermeta
+	delete_option( 'jabd_options' );
+	Bulk_Attachment_Download_Admin_Notice_Manager::remove_all_data();
+	
+}
+
 /*---------------------------------------------------------------------------------------------------------*/
 /*Plugin activation, deactivation and upgrade*/
 register_activation_hook( __FILE__, 'jabd_on_activation' );

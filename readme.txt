@@ -94,6 +94,7 @@ but if you wanted to set the file size per user you could use this filter.
 Release date: 15 July 2017
 
 * Maintenance: Delete 'jabd_version' option on uninstall.
+* Maintenance: Add in [Freemius](https://freemius.com/wordpress/insights/) functionality for feedback.
 
 = 1.2.0 =
 
