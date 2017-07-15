@@ -1,6 +1,6 @@
 === Bulk Attachment Download ===
 Contributors: janwyl
-Tags: media, attachments, bulk download, download
+Tags: media, attachments, bulk download, download, export images, export media, download images, download media
 Requires at least: 4.6.1
 Tested up to: 4.8
 Stable tag: 1.2.0
@@ -91,7 +91,7 @@ but if you wanted to set the file size per user you could use this filter.
 
 = 1.2.1 =
 
-Release date: 
+Release date: 15 July 2017
 
 * Maintenance: Delete 'jabd_version' option on uninstall.
 
