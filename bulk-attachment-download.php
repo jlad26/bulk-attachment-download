@@ -96,14 +96,12 @@ function jabd_fs_uninstall_cleanup() {
 		}
 	}
 
-	// remove options
-	delete_option( 'jabd_version' );
-
 	// remove deprecated options and usermeta
 	delete_option( 'jabd_notices' );
 	delete_metadata( 'user', 0, 'jabd_dismissed_notices', false, true );
 
 	// delete options, notices and usermeta
+	delete_option( 'jabd_version' );
 	delete_option( 'jabd_options' );
 	Bulk_Attachment_Download_Admin_Notice_Manager::remove_all_data();
 	
