@@ -7,14 +7,13 @@ Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Bulk download media or attachments selectively from media library. Include/exclude intermediate image sizes. Keep/collapse uploads folder structure.
+Bulk download selected media or attachment files from your Media Library as a zip file.
+Options include: a) Include / exclude intermediate image sizes; b) Keep / collapse the uploads folder structure.
 
 == Description ==
 
-Allows bulk export of selected attachment files from the media library in a zip file.
-
 A 'Download' option is added to the 'Bulk Actions' dropdown in the Media Library.
-Choose the attachments you want to download, click 'Apply', and a zip file of those attachments is created that you can then download.
+Choose the attachments you want to export, click 'Apply', and a zip file of those attachments is created that you can then download.
 
 Before the zip file is created, you'll see a) how many files will be downloaded, and b) how big the uncompressed files are.
 You are also given the option to:

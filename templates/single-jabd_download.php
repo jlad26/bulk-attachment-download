@@ -16,6 +16,7 @@ if ( current_user_can( 'edit_post', $post->ID ) ) {
 		header( 'Content-Disposition: attachment; filename="'.wp_basename( $file_path ).'"' );
 		header( 'Content-Length: '.filesize( $file_path ) );
 		@readfile( $file_path );
+		jabd_increment_download_count();
 		exit;
 	} else { // 404 if file doesn't exist
 		jabd_404_redirect();

@@ -213,6 +213,18 @@ function jabd_init_settings() {
     );
 	
 	add_settings_field(
+		'jabd_download_counter',
+		__( 'Display download counter', 'st-bulk-download' ),
+		'jabd_download_counter_default_cb',
+		'media',
+		'jabd_settings_section',
+		array(
+			'label_for'	=> 'jabd_download_counter',
+			'class'	=> 'jabd_row',
+		)
+    );
+	
+	add_settings_field(
 		'jabd_secure_downloads',
 		__( 'Make downloads secure', 'st-bulk-download' ),
 		'jabd_secure_downloads_cb',
@@ -268,6 +280,18 @@ function jabd_single_folder_default_cb( $args ) {
 }
 
 /**
+ * Output the download counter settings field
+ */
+function jabd_download_counter_default_cb( $args ) {
+	$options = get_option( 'jabd_options' );
+	$option = isset( $options['jabd_download_counter'] ) ? $options['jabd_download_counter'] : 1;
+	?>
+	<input style="margin-top: 6px" type="checkbox" name="jabd_options[<?php echo $args['label_for']; ?>]" id="<?php echo $args['label_for']; ?>" value="1" <?php checked( $option ); ?> />
+	<p class="description"><?php _e( 'Hide / display the count of downloads on the Bulk downloads screen.', 'st-bulk-download' ); ?></p>
+	<?php
+}
+
+/**
  * Output the secure download settings field
  */
 function jabd_secure_downloads_cb( $args ) {
@@ -283,6 +307,7 @@ function jabd_secure_downloads_cb( $args ) {
  * Sanitize the settings before saving
  */
 function jabd_sanitize_options( $settings ) {
+	$options = get_option( 'jabd_options' );
 	if ( !empty( $settings ) ) {
 		foreach ( $settings as $key => $setting ) {
 			if ( 'jabd_max_size' == $key ) {
@@ -294,7 +319,6 @@ function jabd_sanitize_options( $settings ) {
 				) {
 					$settings[$key] = $setting;
 				} else { // otherwise set to whatever was set before and default of 100 if not set
-					$options = get_option( 'jabd_options' );
 					$settings[$key] = isset( $options['jabd_max_size'] ) ? $options['jabd_max_size'] : 100;
 				}
 			} else {
@@ -303,6 +327,12 @@ function jabd_sanitize_options( $settings ) {
 			}
 		}
 	}
+	// Make sure download counter setting is given a value if not set (because initial default is to display)
+	if ( ! isset( $settings['jabd_download_counter'] ) ) {
+		$settings['jabd_download_counter'] = 0;
+	}
+	// Set download count
+	$settings['jabd_download_count'] = isset( $options['jabd_download_count'] ) ? $options['jabd_download_count'] : 0;
 	return $settings;
 }
 
@@ -571,6 +601,19 @@ function jabd_download_template( $template ) {
 		$template = JABD_PLUGIN_DIR.'templates/single-jabd_download.php';
 	}
 	return $template;
+}
+
+/**
+ * Increments download count stored in options
+ */
+function jabd_increment_download_count() {
+	$options = get_option( 'jabd_options' );
+	if ( isset( $options['jabd_download_count'] ) ) {
+		$options['jabd_download_count']++;
+	} else {
+		$options['jabd_download_count'] = 1;
+	}
+	update_option( 'jabd_options', $options );
 }
 
 /**
