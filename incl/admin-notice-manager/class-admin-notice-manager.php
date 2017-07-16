@@ -1,8 +1,7 @@
 <?php
-
 /**
  *
- * A class to handle the setting and display of admin notices.
+ * A class to handle the setting, display and removal of admin notices in Wordpress plugins.
  *
  */
 class Bulk_Attachment_Download_Admin_Notice_Manager {
@@ -25,7 +24,7 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 	private static $version;
 	
 	/**
-	 * The url to the js directory.
+	 * The url to the assets directory.
 	 *
 	 * @access		private
 	 * @var			string	$url_to_assets_dir		Url to the directory where the files admin-notice-manager.js and
@@ -187,29 +186,29 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 	 *													cause unexpected deletion of notices. Updating messages when they are changed by the
 	 *													developer gets fiddly too.
 	 * 		@type	string			$message			Message to be displayed.
-	 * 		@type	string			$wrap_tag			Tag to wrap message in. Default is 'p'. Set to '' or false for no wrap.
-	 * 		@type	string			$type				One of 'success', 'error', warning', 'info'. Default to 'error'.
+	 * 		@type	string			$wrap_tag			Tag to wrap message in. Default is 'p'. Set to empty string or false for no wrap.
+	 * 		@type	string			$type				One of 'success', 'error', warning', 'info'. Default is 'error'.
 	 * 		@type	array			$user_ids			Array of user ids or user roles for whom message should be displayed.
 	 *													For example: array( 3, 'administrator', 55, 153, 'editors' ) will set the message
 	 *													for users with ids of 3, 55 and 153, and for all users that are administrators or editors.
 	 *													Default is current user id.										
-	 * 		@type	array|string	$screen_ids			Array of screen ids on which message should be displayed.
-	 * 													Set to empty array for all screens, or leave unset for current screen.
-	 *													NB it is recommended to explicitly specify the desired screen rather than leaving unset.
-	 *													If during testing the notice is set on a screen that is then not viewed (e.g. options),
-	 *													changing the screen in the notice args will have no effect because the notice has been stored
-	 *													in the db and will not be updated.
+	 * 		@type	array			$screen_ids			Array of screen ids on which message should be displayed.
+	 * 													Set to empty array for all screens. If left unset the current screen is set if possible,
+	 *													it is recommended to explicitly specify the desired screen rather than leaving unset.
+	 *													If during testing the notice is set on a screen that is then not viewed because of a redirect
+	 *													(e.g. options), changing the screen in the notice args will have no effect because the notice
+	 *													has been stored in the db and will not be updated.
 	 *													Default is empty array (all screens ) for one-time messages, and current screen for persistent.
 	 * 		@type	array			$post_ids			Array of post ids on which message should be displayed. Empty array means all posts.
 	 *													Default is all posts.
 	 * 		@type	string			$persistent			True for persistent, false for one-time. Default is false.
-	 * 		@type	bool			$dismissable		Whether notice is dismissable. Default true.
+	 * 		@type	bool			$dismissable		Whether notice is dismissable. Default is true.
 	 * 		@type	bool			$no_js_dismissable	Whether to give option to dismiss notice if no js. Only applies when $dismissable is true.
-	 *													Default false. Caution should be used in setting this to true. The act of dismissing the
-	 *													notice refreshes the screen so any changed data will be lost. This could be extremely
-	 *													frustrating for a user who has just entered updated loads of data.
+	 *													Default is false. Caution should be used in setting this to true. The act of dismissing the
+	 *													notice refreshes the screen so any changed data on screen will be lost. This could be extremely
+	 *													frustrating for a user who has just entered or updated loads of data (e.g., when editing a post).
 	 * 		@type	bool			$dismiss_all		Whether to delete notice for all users or just the user that has dismissed the notice.
-	 *													Only applies when $dismissable is true. Default false.
+	 *													Only applies when $dismissable is true. Default is false.
 	 * }
 	 * @return		array|WP_Error						Array of notices that have been set by user, or error if notice has failed.
 	 */
@@ -324,11 +323,11 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 	/**
 	 * Parse notice args.
 	 *
-	 * @access	protected
+	 * @access	private
 	 * @param	array			$notice		Array of user-set args
 	 * @return	array|WP_Error				Notice with defaults validated and set as necessary, or WP_Error object if values not validated.
 	 */
-	protected static function parse_notice_args( $notice ) {
+	private static function parse_notice_args( $notice ) {
 		
 		$errors = new WP_Error();
 		
@@ -460,7 +459,7 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 
 		}
 
-		// Send the result.
+		// Give the result.
 		if ( ! empty( $errors->get_error_codes() ) ) {
 			$errors->add_data( $notice, 'notice_data_provided_for_validation' );
 			return $errors;
@@ -472,10 +471,10 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 	/**
 	 * Parse user ids, converting roles to user ids.
 	 *
-	 * @access	protected
+	 * @access	private
 	 * @return	array	$user_ids		Parsed user ids
 	 */
-	protected static function parse_user_roles( array $user_ids ) {
+	private static function parse_user_roles( array $user_ids ) {
 	
 		// Convert user roles to user ids and add them.
 		if ( ! empty( $user_ids ) )	{	
@@ -511,10 +510,10 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 	/**
 	 * Get current screen id.
 	 *
-	 * @access	protected
+	 * @access	private
 	 * @return	int	$screen_id		id of current screen, 0 if not available
 	 */
-	protected static function get_current_screen_id() {
+	private static function get_current_screen_id() {
 		$screen_id = 0;
 		if ( function_exists( 'get_current_screen' ) ) {
 			$screen = get_current_screen();
@@ -528,6 +527,7 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 	/**
 	 * Returns html for a dismiss on redirect link.
 	 *
+	 * @module	Optional helper methods
 	 * @param	array	$args {
 	 * 		@type		string		$link			Html to display as link.
 	 * 		@type		string		$redirect_url	Redirect url. Set as empty string for no redirect. Default is no redirect.
@@ -558,6 +558,7 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 	/**
 	 * Returns html for button that triggers a specific action hook.
 	 *
+	 * @module	Optional helper methods
 	 * @param	array	$args {
 	 * 		@type		string		$content		Html to display as button / link content.
 	 * 		@type		string		$event			String to identify dismiss event. The action triggered will be
@@ -622,7 +623,7 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 	/**
 	 * Amend added notice.
 	 *
-	 * Use when changing any of the parameters of a notice (including id) so that updated notice will be displayed for any users
+	 * Use when changing any of the parameters of a notice (including id) so that updated notice will be displayed for any users.
 	 * who have previously had the notice set for them.
 	 * @param		string		$old_notice_id		Current ID of notice to be amended.
 	 * @param		array		$new_notice			Args of new notice to replace old. Leaving user_ids unset means that the notice will
@@ -631,7 +632,7 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 	 *												the updated notice. The notice will be removed for any user that is not permitted to view it.
 	 * @return		(void)|WP_Error					Returns WP_Error object if $new_notice could not be parsed.
 	 */
-	public static function amend_opt_out_notice( $old_notice_id, $new_notice ) {
+	public static function amend_added_notice( $old_notice_id, $new_notice ) {
 		
 		// If not set, set user ids to empty array to indicate that any user that had the old notice should have the new notice.
 		if ( ! isset( $new_notice['user_ids'] ) ) {
@@ -657,7 +658,7 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 
 			foreach ( $user_ids as $user_id ) {
 				
-				//Remove the old notice without firing action hook.
+				// Remove the old notice without firing action hook.
 				$removed = self::delete_added_user_notice( $old_notice_id, $user_id, $event = false, $prevent_action = true );
 				
 				// Add in new notice if it should be displayed to this user.
@@ -671,6 +672,34 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 
 			}
 			
+		}
+		
+	}
+	
+	/**
+	 * Amend opt out dismissal notice id.
+	 *
+	 * Use when changing any of the id of an opt out notice so that corresponding dimissals stored in usermeta are updated.
+	 * @param		string		$old_notice_id		Current ID of notice to be amended.
+	 * @param		string		$new_notice_id		New ID of notice to be amended.
+	 */
+	public static function amend_opt_out_dismissal_notice_id( $old_notice_id, $new_notice_id ) {
+		
+		$user_ids = self::get_users_with_opt_out_dismissals();
+		
+		if ( ! empty( $user_ids ) ) {
+			foreach ( $user_ids as $user_id ) {
+				
+				$dismissed_notice_ids = get_user_meta( $user_id, self::$manager_id . '_opt_out_notice_dismissals', true );
+				$key = array_search( $old_notice_id, $dismissed_notice_ids );
+				
+				if ( $key !== false ) {
+					// Update the notice id.
+					$dismissed_notice_ids[ $key ] = $new_notice_id;;
+					update_user_meta( $user_id, self::$manager_id . '_opt_out_notice_dismissals', $dismissed_notice_ids );
+				}
+				
+			}
 		}
 		
 	}
@@ -694,11 +723,11 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 	/**
 	 * Display opt out notices.
 	 *
-	 * @access	protected
+	 * @access	private
 	 * @param		int		$screen_id		Current screen id (0 if not known).
 	 * @param		int		$user_id		Current user id.
 	 */
-	protected static function display_opt_out_notices( $screen_id, $user_id ) {
+	private static function display_opt_out_notices( $screen_id, $user_id ) {
 		
 		global $post;
 		$post_id = is_object( $post ) ? $post->ID : 0;
@@ -763,11 +792,11 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 	/**
 	 * Display added user notices.
 	 *
-	 * @access	protected
+	 * @access	private
 	 * @param		int		$screen_id		Current screen id (0 if not known).
 	 * @param		int		$user_id		Current user id.
 	 */
-	protected static function display_added_notices( $screen_id, $user_id ) {
+	private static function display_added_notices( $screen_id, $user_id ) {
 		
 		global $post;
 		$post_id = is_object( $post ) ? $post->ID : 0;
@@ -813,10 +842,10 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 	/**
 	 * Display notice.
 	 *
-	 * @access	protected
+	 * @access	private
 	 * @param		array	$notice		array of notice parameters.
 	 */
-	protected static function display_notice( $notice ) {
+	private static function display_notice( $notice ) {
 
 		// Add classes to the notice container as needed.
 		$container_classes = array(
@@ -899,14 +928,12 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 				}
 				
 				// Dismiss opt out notice if required
-				$opt_out_notices = self::$opt_out_notices;
-				if ( isset( $opt_out_notices[ $notice_id ] ) ) {
-					self::dismiss_opt_out_notice( $notice_id, $user->ID, $event );
-				}
+				self::dismiss_opt_out_notice( $notice_id, $user->ID, $event );
 			}
 
 		}
 		
+		// Redirect if this is not an ajax request.
 		if ( isset( $_POST['anm-no-js'] ) ) {
 			
 			// If a redirect has been set, use it.
@@ -927,14 +954,14 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 	}
 	
 	/**
-	 * Delete notice from user.
+	 * Add dismissal to a user for an opt out notice.
 	 *
-	 * @access	protected
+	 * @access	private
 	 * @param		string		$notice_id		Unique ID of message.
 	 * @param		int			$user_id		User id for whom message should be dismissed.
 	 * @return		bool		$dismissed		True if notice was dismissed successfully.
 	 */
-	protected static function dismiss_opt_out_notice( $notice_id, $user_id, $event = false ) {
+	private static function dismiss_opt_out_notice( $notice_id, $user_id, $event = false ) {
 		
 		$dismissed = false;
 		if ( ! $notices = get_user_meta( $user_id, self::$manager_id . '_opt_out_notice_dismissals', true ) ) {
@@ -963,7 +990,9 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 	 *
 	 * @param		string		$notice_id		Unique ID of message.
 	 * @param		int			$user_id		User id from whom message should be deleted.
-	 * @param		book		$prevent_action	Whether to prevent firing of action.
+	 * @param		string		$event			If set, then an action is fired on deletion in the form
+	 *											{self::$manager_id}_user_notice_dismissed_{$notice_id}_{$event}
+	 * @param		bool		$prevent_action	Whether to prevent firing of action.
 	 * @return		bool		$removed		True if removed successfully.
 	 */
 	public static function delete_added_user_notice( $notice_id, $user_id, $event = false, $prevent_action = false ) {
@@ -1028,9 +1057,10 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 	/**
 	 * Get all user ids with added notices.
 	 *
+	 * @access	private
 	 * @return		array		Array of user ids.
 	 */
-	public static function get_users_with_added_notices() {
+	private static function get_users_with_added_notices() {
 	
 		// Get all user ids with notices stored in db.
 		$args = array(
@@ -1063,8 +1093,32 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 	}
 	
 	/**
+	 * Get all user ids with opt out dismissals.
+	 *
+	 * @access	private
+	 * @return		array		Array of user ids.
+	 */
+	private static function get_users_with_opt_out_dismissals() {
+	
+		$args = array(
+			'meta_query'	=>	array(
+									array(
+										'key'			=>	self::$manager_id . '_opt_out_notice_dismissals',
+										'compare'		=>	'!=',
+										'value'			=>	''
+									)
+								),
+			'fields'		=>	'ID'
+		);
+
+		return get_users( $args );
+		
+	}
+	
+	/**
 	 * Delete all notices from a user.
 	 *
+	 * @module	Optional helper methods
 	 * @param		int			$user_id		User id from whom notices should be deleted.
 	 */
 	public static function delete_added_user_notices( $user_id ) {
@@ -1091,6 +1145,7 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 	/**
 	 * Remove opt out dismissals from a user.
 	 *
+	 * @module	Optional helper methods
 	 * @param		int		$user_id		User ID from whom to remove dismissals. Set to 0 for all users.
 	 * @param		array	$notice_ids		Array of notice ids to remove
 	 */

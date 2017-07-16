@@ -89,6 +89,12 @@ but if you wanted to set the file size per user you could use this filter.
 
 == Changelog ==
 
+= 1.2.2 =
+
+Release date: 
+
+* Maintenance: Update Admin Notice Manager class to latest version.
+
 = 1.2.1 =
 
 Release date: 15 July 2017
