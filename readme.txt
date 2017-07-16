@@ -7,11 +7,11 @@ Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Allows bulk downloading of attachments from the media library.
+Bulk download media or attachments selectively from media library. Include/exclude intermediate image sizes. Keep/collapse uploads folder structure.
 
 == Description ==
 
-Allows bulk downloading of attachments from the media library.
+Allows bulk export of selected attachment files from the media library in a zip file.
 
 A 'Download' option is added to the 'Bulk Actions' dropdown in the Media Library.
 Choose the attachments you want to download, click 'Apply', and a zip file of those attachments is created that you can then download.
