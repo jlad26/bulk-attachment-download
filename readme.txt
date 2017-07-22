@@ -90,7 +90,7 @@ but if you wanted to set the file size per user you could use this filter.
 
 = 1.2.2 =
 
-Release date: 
+Release date: 22 July 2017
 
 * Maintenance: Fix poor placement of file info data when popup is scrollable.
 * Maintenance: Update Admin Notice Manager class to latest version.
