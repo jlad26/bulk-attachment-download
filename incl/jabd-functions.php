@@ -211,19 +211,7 @@ function jabd_init_settings() {
 			'class'	=> 'jabd_row',
 		)
     );
-	
-	add_settings_field(
-		'jabd_download_counter',
-		__( 'Display download counter', 'st-bulk-download' ),
-		'jabd_download_counter_default_cb',
-		'media',
-		'jabd_settings_section',
-		array(
-			'label_for'	=> 'jabd_download_counter',
-			'class'	=> 'jabd_row',
-		)
-    );
-	
+
 	add_settings_field(
 		'jabd_secure_downloads',
 		__( 'Make downloads secure', 'st-bulk-download' ),
@@ -280,18 +268,6 @@ function jabd_single_folder_default_cb( $args ) {
 }
 
 /**
- * Output the download counter settings field
- */
-function jabd_download_counter_default_cb( $args ) {
-	$options = get_option( 'jabd_options' );
-	$option = isset( $options['jabd_download_counter'] ) ? $options['jabd_download_counter'] : 1;
-	?>
-	<input style="margin-top: 6px" type="checkbox" name="jabd_options[<?php echo $args['label_for']; ?>]" id="<?php echo $args['label_for']; ?>" value="1" <?php checked( $option ); ?> />
-	<p class="description"><?php _e( 'Hide / display the count of downloads on the Bulk downloads screen.', 'st-bulk-download' ); ?></p>
-	<?php
-}
-
-/**
  * Output the secure download settings field
  */
 function jabd_secure_downloads_cb( $args ) {
@@ -307,7 +283,7 @@ function jabd_secure_downloads_cb( $args ) {
  * Sanitize the settings before saving
  */
 function jabd_sanitize_options( $settings ) {
-	$options = get_option( 'jabd_options' );
+	
 	if ( !empty( $settings ) ) {
 		foreach ( $settings as $key => $setting ) {
 			if ( 'jabd_max_size' == $key ) {
@@ -319,6 +295,7 @@ function jabd_sanitize_options( $settings ) {
 				) {
 					$settings[$key] = $setting;
 				} else { // otherwise set to whatever was set before and default of 100 if not set
+					$options = get_option( 'jabd_options' );
 					$settings[$key] = isset( $options['jabd_max_size'] ) ? $options['jabd_max_size'] : 100;
 				}
 			} else {
@@ -327,12 +304,7 @@ function jabd_sanitize_options( $settings ) {
 			}
 		}
 	}
-	// Make sure download counter setting is given a value if not set (because initial default is to display)
-	if ( ! isset( $settings['jabd_download_counter'] ) ) {
-		$settings['jabd_download_counter'] = 0;
-	}
-	// Set download count
-	$settings['jabd_download_count'] = isset( $options['jabd_download_count'] ) ? $options['jabd_download_count'] : 0;
+
 	return $settings;
 }
 
@@ -415,7 +387,7 @@ function jabd_before_options_update( $value, $old_value, $option ) {
  * @hooked admin_init
  */
 function jabd_add_opt_out_notices() {
-
+	
 	$list_mode_html = Bulk_Attachment_Download_Admin_Notice_Manager::dismiss_on_redirect_link( array(
 		'redirect'	=>	admin_url( 'upload.php?mode=list' ),
 		'content'	=>	_x( 'list mode', 'text for link to switch media mode', 'st-bulk-download' )
@@ -439,6 +411,78 @@ function jabd_add_opt_out_notices() {
 		)
 
 	);
+	
+	// Add in ratings request if appropriate. Admins are asked to rate when certain numbers of downloads have been made.
+	$stored_options = get_option( 'jabd_storage' );
+	
+	$request_rating = false;
+	
+	$user_id = get_current_user_id();
+	
+	// Don't give message if this user has already left a rating or has refused permanently.
+	if ( ! isset( $stored_options['no_rating_request'] ) ) {
+		$request_rating = true;
+	} else {
+		if ( ! in_array( $user_id, $stored_options['no_rating_request'] ) ) {
+			$request_rating = true;
+		}
+	}
+	
+	if ( $request_rating ) {
+
+		$download_count = isset( $stored_options['download_count'] ) ? $stored_options['download_count'] : 0;
+		$count_triggers = array( 25, 10, 3 );
+
+		foreach ( $count_triggers as $count_trigger ) {
+			if ( $download_count >= $count_trigger ) {
+				$downloads_passed = $count_trigger;
+				break;
+			}
+		}
+		
+		if ( isset( $downloads_passed ) ) {
+			
+			$rating_message = sprintf(
+				/* translators: 1: Number of downloads 2: opening html tag 3: closing html tag */
+				__( 'Hi, you and your fellow administrators have downloaded %1$s times using our %2$sBulk Attachment Download%3$s plugin – that’s awesome! If you\'re finding it useful and you have a moment, we\'d be massively grateful if you helped spread the word by rating the plugin on WordPress.', 'st-bulk-download' ),
+				'<strong>' . $stored_options['download_count'] . '</strong>',
+				'<strong>',
+				'</strong>'
+			) . '<br />';
+
+			$review_link = 'https://wordpress.org/support/plugin/bulk-attachment-download/reviews/';
+			
+			// First option - give a review
+			$rating_message .= '<span style="display: inline-block">' . Bulk_Attachment_Download_Admin_Notice_Manager::dismiss_on_redirect_link( array(
+				'content'	=>	__( 'Sure, I\'d be happy to', 'st-bulk-download' ),
+				'redirect'	=>	$review_link,
+				'new_tab'	=>	true
+			) ) . ' &nbsp;|&nbsp;&nbsp;</span>';
+			
+			// Second option - not now
+			$rating_message .= '<span style="display: inline-block">' . Bulk_Attachment_Download_Admin_Notice_Manager::dismiss_event_button( array(
+				'content'	=>	__( 'Nope, maybe later', 'st-bulk-download' ),
+				'event'		=>	''
+			) ) . ' &nbsp;|&nbsp;&nbsp;</span>';
+			
+			// Third option - already reviewed
+			$rating_message .= '<span style="display: inline-block">' . Bulk_Attachment_Download_Admin_Notice_Manager::dismiss_event_button( array(
+				'content'	=>	__( 'I already did', 'st-bulk-download' ),
+				'event'		=>	'prevent_rating_request'
+			) ) . '</span>';
+			
+			$opt_out_notices[ 'ratings_request_' . $downloads_passed ] = array(
+				'message'		=>	$rating_message,
+				'user_ids'		=>	array( 'administrator' ),
+				'type'			=>	'info',
+				'screen_ids'	=>	array( 'upload' ),
+				'persistent'	=>	true,
+				'dismissable'	=>	false
+			);
+		}
+
+	}
+
 	Bulk_Attachment_Download_Admin_Notice_Manager::add_opt_out_notices( $opt_out_notices );
 	
 }
@@ -469,6 +513,22 @@ function jabd_conditional_display_admin_notice( $display, $notice ) {
 	
 	return $display;
 	
+}
+
+/**
+ * Prevent future rating request for a user because has either refused or has rated.
+ * @hooked jabd_user_notice_dismissed_ratings_request_{$count_trigger}_prevent_rating_request
+ */
+function jabd_prevent_rating_request( $user_id ) {
+	$options = get_option( 'jabd_storage' );
+	if ( ! isset( $options['no_rating_request'] ) ) {
+		$options['no_rating_request'] = array( $user_id );
+	} else {
+		if ( ! in_array( $user_id, $options['no_rating_request'] ) ) {
+			$options['no_rating_request'][] = $user_id;
+		}
+	}
+	update_option( 'jabd_storage', $options );
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
@@ -604,16 +664,16 @@ function jabd_download_template( $template ) {
 }
 
 /**
- * Increments download count stored in options
+ * Increments download count stored in options and adds request notice if appropriate
  */
 function jabd_increment_download_count() {
-	$options = get_option( 'jabd_options' );
-	if ( isset( $options['jabd_download_count'] ) ) {
-		$options['jabd_download_count']++;
+	$options = get_option( 'jabd_storage' );
+	if ( isset( $options['download_count'] ) ) {
+		$options['download_count']++;
 	} else {
-		$options['jabd_download_count'] = 1;
+		$options['download_count'] = 1;
 	}
-	update_option( 'jabd_options', $options );
+	update_option( 'jabd_storage', $options );
 }
 
 /**

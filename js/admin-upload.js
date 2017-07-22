@@ -158,12 +158,17 @@ jQuery(document).ready(function($) {
 		popupClosable = false;
 	}
 
+
 	// Show results - either link to download or error message
 	function requestResponse( response ) {
 		var result = JSON.parse(response);
 		popupClosable = true;
 		setPopupContents( result.messages );
-		$('.jabd-popup-msg input[type="text"]').focus(); //give focus to download title field if present
+		//give focus to download title field if container is displaying at full height and not scrollable
+		var div = $('.jabd-popup').get(0);
+		if ( div.scrollHeight <= div.clientHeight ) {
+			$('.jabd-popup-msg input[type="text"]').focus();
+		}
 	}
 	
 });

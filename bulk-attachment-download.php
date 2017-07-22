@@ -103,6 +103,7 @@ function jabd_fs_uninstall_cleanup() {
 	// delete options, notices and usermeta
 	delete_option( 'jabd_version' );
 	delete_option( 'jabd_options' );
+	delete_option( 'jabd_storage' );
 	Bulk_Attachment_Download_Admin_Notice_Manager::remove_all_data();
 	
 }
@@ -122,6 +123,10 @@ add_filter( 'pre_update_option_jabd_options', 'jabd_before_options_update', 10, 
 /*Admin notices*/
 add_action( 'admin_init', 'jabd_add_opt_out_notices' );
 add_filter( 'jabd_display_opt_out_notice', 'jabd_conditional_display_admin_notice', 10, 2 ); //conditional check on display
+$count_triggers = array( 25, 10, 3 );
+foreach ( $count_triggers as $count_trigger ) {
+	add_action( 'jabd_user_notice_dismissed_ratings_request_' . $count_trigger . '_prevent_rating_request', 'jabd_prevent_rating_request' );
+}
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*Add admin js and css*/

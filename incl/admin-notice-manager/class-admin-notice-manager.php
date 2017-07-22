@@ -116,9 +116,7 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 				// Add JS and ajax processing to handle dismissal of persistent notices.
 				add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
 				add_action( 'wp_ajax_' . self::$manager_id . '_dismiss_admin_notice', array( __CLASS__, 'dismiss_notice' ) );
-				
-				
-				
+
 				// Display error message if not initialized correctly
 				add_action( 'admin_init', array( __CLASS__, 'check_manager_id' ) );
 				
@@ -529,16 +527,20 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 	 *
 	 * @module	Optional helper methods
 	 * @param	array	$args {
-	 * 		@type		string		$link			Html to display as link.
-	 * 		@type		string		$redirect_url	Redirect url. Set as empty string for no redirect. Default is no redirect.
+	 * 		@type		string		$content		Html to display as link.
+	 * 		@type		string		$redirect		Redirect url. Set as empty string for no redirect. Default is no redirect.
+	 * 		@type		string		$new_tab		If true, link is opened in a new window / tab (equivalent to target="_blank". Default is false.
+	*												Only works on browsers with js enabled.
 	 * 		@type		array		$classes		Array of classes for the button. Default is array( anm-link ) which styles as a link.
 	 * }
+	 * @return			string						Button html (styled by default as link)
 	 */
 	public static function dismiss_on_redirect_link( array $args ) {
 		
 		$defaults = array(
 			'content'	=>	'Undefined',
 			'redirect'	=>	'',
+			'new_tab'	=>	false,
 			'classes'	=>	array( 'anm-link' )
 		);
 		
@@ -551,7 +553,7 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 		$classes = implode( ' ', $classes );
 		
 		// Add button with value of redirect url.
-		return '<button type="submit" class="' . $classes . '" name="anm-redirect" value="' . esc_attr( $args['redirect'] ) . '">' . $args['content'] . '</button>';
+		return '<button type="submit" class="' . $classes . '" name="anm-redirect" data-newtab="' . intval( $args['new_tab'] ) . '" value="' . esc_attr( $args['redirect'] ) . '">' . $args['content'] . '</button>';
 		
 	}
 	
@@ -583,7 +585,7 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 		}
 		$classes = implode( ' ', $classes );
 		
-		// Add button with value of redirect url.
+		// Add button with value of event.
 		return '<button type="submit" class="' . $classes . '" name="anm-event" value="' . esc_attr( $args['event'] ) . '">' . $args['content'] . '</button>';
 		
 	}
@@ -927,28 +929,29 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 					
 				}
 				
-				// Dismiss opt out notice if required
+				// Dismiss opt out notice if required.
 				self::dismiss_opt_out_notice( $notice_id, $user->ID, $event );
+				
+				// Redirect if this is not an ajax request.
+				if ( isset( $_POST['anm-no-js'] ) ) {
+					
+					// If a redirect has been set, use it.
+					if ( isset( $_POST['anm-redirect'] ) ) {
+						if ( ! empty( $_POST['anm-redirect'] ) ) {
+							wp_redirect( $_POST['anm-redirect'] );
+							exit();
+						}
+					}
+					
+					// If not redirected, go back to where we came from.
+					wp_safe_redirect( wp_get_referer() );
+					exit();
+				}
+				
 			}
 
 		}
-		
-		// Redirect if this is not an ajax request.
-		if ( isset( $_POST['anm-no-js'] ) ) {
-			
-			// If a redirect has been set, use it.
-			if ( isset( $_POST['anm-redirect'] ) ) {
-				if ( ! empty( $_POST['anm-redirect'] ) ) {
-					wp_safe_redirect( $_POST['anm-redirect'] );
-					exit();
-				}
-			}
-			
-			// If not redirected, go back to where we came from.
-			wp_safe_redirect( wp_get_referer() );
-			exit();
-		}
-		
+
 		wp_die();
 		
 	}
