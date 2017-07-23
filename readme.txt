@@ -1,5 +1,5 @@
 === Bulk Attachment Download ===
-Contributors: janwyl
+Contributors: janwyl, freemius
 Tags: media, attachments, bulk download, download, export images, export media, download images, download media
 Requires at least: 4.6.1
 Tested up to: 4.8
