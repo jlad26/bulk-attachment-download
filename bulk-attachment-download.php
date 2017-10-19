@@ -4,7 +4,7 @@
  * Plugin Name:		Bulk Attachment Download
  * Plugin URI:		https://wordpress.org/plugins/bulk-attachment-download/
  * Description:		Bulk download media or attachments selectively from your Media Library as a zip file. Options include: a) Include / exclude intermediate image sizes; b) Keep / collapse the uploads folder structure.
- * Version:			1.2.2
+ * Version:			1.2.3
  * Author:			Jon Anwyl
  * Author URI:		http://www.sneezingtrees.com
  * Text Domain:		st-bulk-download

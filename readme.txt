@@ -88,6 +88,12 @@ but if you wanted to set the file size per user you could use this filter.
 
 == Changelog ==
 
+= 1.2.3 =
+
+Release date: 
+
+* Bug Fix: Prevent "Can't use method return value" error for php < 5.5.
+
 = 1.2.2 =
 
 Release date: 22 July 2017
