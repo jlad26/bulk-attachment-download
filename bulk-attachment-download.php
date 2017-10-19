@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 if ( ! defined( 'JABD_PLUGIN_DIR' ) ) define( 'JABD_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 if ( ! defined( 'JABD_PLUGIN_BASE_URL' ) ) define( 'JABD_PLUGIN_BASE_URL', plugin_dir_url( __FILE__ ) );
 if ( ! defined( 'JABD_DOWNLOADS_DIR' ) ) define( 'JABD_DOWNLOADS_DIR', 'jabd-downloads' );
-if ( ! defined( 'JABD_VERSION' ) ) define( 'JABD_VERSION', '1.2.2' );
+if ( ! defined( 'JABD_VERSION' ) ) define( 'JABD_VERSION', '1.2.3' );
 
 //include functions
 require_once JABD_PLUGIN_DIR.'incl/jabd-functions.php';
@@ -33,6 +33,7 @@ require_once JABD_PLUGIN_DIR.'incl/jabd-functions.php';
 //include admin notice manager class and initialize
 require_once JABD_PLUGIN_DIR.'incl/admin-notice-manager/class-admin-notice-manager.php';
 Bulk_Attachment_Download_Admin_Notice_Manager::init( array(
+	'plugin_name'		=>	'Bulk Attachment Download',
 	'manager_id'		=>	'jabd',
 	'text_domain'		=>	'st-bulk-download',
 	'version'			=>	JABD_VERSION
