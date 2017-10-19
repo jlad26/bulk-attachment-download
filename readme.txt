@@ -90,7 +90,7 @@ but if you wanted to set the file size per user you could use this filter.
 
 = 1.2.3 =
 
-Release date: 
+Release date: 19 October 2017
 
 * Bug Fix: Prevent "Can't use method return value" error for php < 5.5.
 

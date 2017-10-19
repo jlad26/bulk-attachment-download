@@ -395,7 +395,7 @@ function jabd_add_opt_out_notices() {
 	
 	$opt_out_notices = array(
 		'number_of_media_items'	=>	array(
-			'message'			=>	__( 'Don\'t forget you can change the number of media items per page (up to 999) by going to Screen Options at the top right of the screen.', 'st-bulk-download' ),
+			'message'			=>	'<strong>Bulk Attachment Download:</strong> ' . __( 'Don\'t forget you can change the number of media items per page (up to 999) by going to Screen Options at the top right of the screen.', 'st-bulk-download' ),
 			'type'				=>	'info',
 			'screen_ids'		=>	array( 'upload' ),
 			'persistent'		=>	true,
@@ -403,7 +403,7 @@ function jabd_add_opt_out_notices() {
 		),
 		'switch_to_list_mode'	=>	array(
 			/* translators: link to switch to list mode */
-			'message'			=>	sprintf( __( 'To use bulk download, switch to %s.', 'st-bulk-download' ), $list_mode_html ),
+			'message'			=>	'<strong>Bulk Attachment Download:</strong> ' . sprintf( __( 'To use bulk download, switch to %s.', 'st-bulk-download' ), $list_mode_html ),
 			'type'				=>	'info',
 			'screen_ids'		=>	array( 'upload' ),
 			'persistent'		=>	true,
