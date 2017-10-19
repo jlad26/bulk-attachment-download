@@ -264,7 +264,7 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 	}
 	
 	/**
-	 * Add a new opt out notice.
+	 * Add an error notice.
 	 *
 	 * @param	WP_Error	$error_object 	 WP_Error object
 	 */
