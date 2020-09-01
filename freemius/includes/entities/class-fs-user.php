@@ -2,7 +2,7 @@
 	/**
 	 * @package     Freemius
 	 * @copyright   Copyright (c) 2015, Freemius, Inc.
-	 * @license     http://opensource.org/licenses/gpl-2.0.php GNU Public License
+	 * @license     https://www.gnu.org/licenses/gpl-3.0.html GNU General Public License Version 3
 	 * @since       1.0.3
 	 */
 
@@ -31,6 +31,13 @@
 		 */
 		public $is_verified;
 		/**
+         * @author Leo Fajardo (@leorw)
+         * @since 2.3.0
+         *
+		 * @var bool
+		 */
+		public $is_beta;
+		/**
 		 * @var string|null
 		 */
 		public $customer_id;
@@ -54,6 +61,16 @@
 
 		function is_verified() {
 			return ( isset( $this->is_verified ) && true === $this->is_verified );
+		}
+
+        /**
+         * @author Leo Fajardo (@leorw)
+         * @since 2.3.0
+         *
+         * @return bool
+         */
+		function is_beta() {
+			return ( isset( $this->is_beta ) && true === $this->is_beta );
 		}
 
 		static function get_type() {

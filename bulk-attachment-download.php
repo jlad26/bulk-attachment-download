@@ -45,38 +45,41 @@ add_action( 'plugins_loaded', 'jabd_load_plugin_textdomain' );
 /*--------------------------------------------------------------------------------------------------*/
 /*Code for integration with Freemius functionality (https://freemius.com/wordpress/insights/)*/
 
-// Create a helper function for easy SDK access.
-function jabd_fs() {
-	global $jabd_fs;
+if ( ! function_exists( 'jabd_fs' ) ) {
+    // Create a helper function for easy SDK access.
+    function jabd_fs() {
+        global $jabd_fs;
 
-	if ( ! isset( $jabd_fs ) ) {
-		// Include Freemius SDK.
-		require_once dirname(__FILE__) . '/freemius/start.php';
+        if ( ! isset( $jabd_fs ) ) {
+            // Include Freemius SDK.
+            require_once dirname(__FILE__) . '/freemius/start.php';
 
-		$jabd_fs = fs_dynamic_init( array(
-			'id'                  => '1226',
-			'slug'                => 'bulk-attachment-download',
-			'type'                => 'plugin',
-			'public_key'          => 'pk_b313e39f6475c257bc3aadfbc55df',
-			'is_premium'          => false,
-			'has_addons'          => false,
-			'has_paid_plans'      => false,
-			'menu'                => array(
-				'first-path'     => 'plugins.php',
-				'account'        => false,
-				'contact'        => false,
-				'support'        => false,
-			),
-		) );
-	}
+            $jabd_fs = fs_dynamic_init( array(
+                'id'                  => '1226',
+                'slug'                => 'bulk-attachment-download',
+                'type'                => 'plugin',
+                'public_key'          => 'pk_b313e39f6475c257bc3aadfbc55df',
+                'is_premium'          => false,
+                'has_addons'          => false,
+                'has_paid_plans'      => false,
+                'menu'                => array(
+                    'slug'           => 'options-media.php',
+                    'account'        => false,
+                    'contact'        => false,
+                    'support'        => false,
+                ),
+            ) );
+        }
 
-	return $jabd_fs;
+        return $jabd_fs;
+    }
+
+    // Init Freemius.
+    jabd_fs();
+    // Signal that SDK was initiated.
+    do_action( 'jabd_fs_loaded' );
 }
 
-// Init Freemius.
-jabd_fs();
-// Signal that SDK was initiated.
-do_action( 'jabd_fs_loaded' );
 // Hook in uninstall actions.
 jabd_fs()->add_action('after_uninstall', 'jabd_fs_uninstall_cleanup');
 
