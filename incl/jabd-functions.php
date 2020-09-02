@@ -383,6 +383,28 @@ function jabd_before_options_update( $value, $old_value, $option ) {
 /*Admin notices*/
 
 /**
+ * Add no js error admin notices to Plugins page, Media settings, Media page, and Bulk Downloads page.
+ * @hooked admin_notices
+ */
+function jabd_no_js_error_notice() {
+
+	if ( function_exists( 'get_current_screen' ) ) {
+		$screen = get_current_screen();
+		if ( ! empty( $screen ) ) {
+			if ( in_array( $screen->id, array( 'upload', 'plugins', 'edit-jabd_download', 'options-media' ) ) ) {
+	?>
+<noscript>
+	<div class="notice notice-error is-dismissible">
+		<p><strong>Bulk Attachment Download: </strong><?php _e( 'This plugin does not function without Javascript enabled. Please enable Javascript or use another browser.', 'st-bulk-download' ); ?></p>
+	</div>
+</noscript>
+	<?php
+			}
+		}
+	}
+}
+
+/**
  * Add opt out admin notices
  * @hooked admin_init
  */

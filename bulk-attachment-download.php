@@ -63,7 +63,7 @@ if ( ! function_exists( 'jabd_fs' ) ) {
                 'has_addons'          => false,
                 'has_paid_plans'      => false,
                 'menu'                => array(
-                    'slug'           => 'options-media.php',
+                    'first-path'     => 'options-media.php',
                     'account'        => false,
                     'contact'        => false,
                     'support'        => false,
@@ -126,6 +126,7 @@ add_filter( 'pre_update_option_jabd_options', 'jabd_before_options_update', 10, 
 /*---------------------------------------------------------------------------------------------------------*/
 /*Admin notices*/
 add_action( 'admin_init', 'jabd_add_opt_out_notices' );
+add_action( 'admin_notices', 'jabd_no_js_error_notice' );
 add_filter( 'jabd_display_opt_out_notice', 'jabd_conditional_display_admin_notice', 10, 2 ); //conditional check on display
 $count_triggers = array( 25, 10, 3 );
 foreach ( $count_triggers as $count_trigger ) {
