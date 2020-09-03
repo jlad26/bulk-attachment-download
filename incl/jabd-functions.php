@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Internationalization
  */
 function jabd_load_plugin_textdomain() {
-    load_plugin_textdomain( 'st-bulk-download', FALSE, basename( JABD_PLUGIN_DIR ) . '/languages/' );
+    load_plugin_textdomain( 'bulk-attachment-download', FALSE, basename( JABD_PLUGIN_DIR ) . '/languages/' );
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
@@ -31,9 +31,9 @@ function jabd_admin_enqueue_scripts( $hook ) {
 		wp_enqueue_script( 'jabd-admin-upload-js', JABD_PLUGIN_BASE_URL.'js/admin-upload.js', array( 'jquery' ), '1.0.0' );
 
 		$localization_array = array(
-			'download_option' 			=> __( 'Download', 'st-bulk-download' ),
-			'download_launched_msg'		=> __( 'Please wait, your download is being created.', 'st-bulk-download' ),
-			'gathering_data_msg'		=> __( 'Gathering data...', 'st-bulk-download' ),
+			'download_option' 			=> __( 'Download', 'bulk-attachment-download' ),
+			'download_launched_msg'		=> __( 'Please wait, your download is being created.', 'bulk-attachment-download' ),
+			'gathering_data_msg'		=> __( 'Gathering data...', 'bulk-attachment-download' ),
 			'download_nonce'			=> wp_create_nonce( 'download-request-'.get_current_user_id() ),
 		);
 		wp_localize_script( 'jabd-admin-upload-js', 'jabd_downloader', $localization_array );
@@ -170,7 +170,7 @@ function jabd_init_settings() {
 	// register a new section in the "Media" page
 	add_settings_section(
 		'jabd_settings_section',
-		__( 'Bulk Attachment Download', 'st-bulk-download' ),
+		__( 'Bulk Attachment Download', 'bulk-attachment-download' ),
 		null,
 		'media'
 	);
@@ -178,7 +178,7 @@ function jabd_init_settings() {
 	// register fields in the "jabd_settings_section" section, inside the "Media" page
 	add_settings_field(
 		'jabd_max_size',
-		__( 'Max uncompressed file size', 'st-bulk-download' ),
+		__( 'Max uncompressed file size', 'bulk-attachment-download' ),
 		'jabd_max_size_input',
 		'media',
 		'jabd_settings_section',
@@ -190,7 +190,7 @@ function jabd_init_settings() {
 	
 	add_settings_field(
 		'jabd_int_sizes',
-		__( 'Include intermediate sizes by default', 'st-bulk-download' ),
+		__( 'Include intermediate sizes by default', 'bulk-attachment-download' ),
 		'jabd_int_sizes_default_cb',
 		'media',
 		'jabd_settings_section',
@@ -202,7 +202,7 @@ function jabd_init_settings() {
 	
 	add_settings_field(
 		'jabd_no_folders',
-		__( 'Default single folder download', 'st-bulk-download' ),
+		__( 'Default single folder download', 'bulk-attachment-download' ),
 		'jabd_single_folder_default_cb',
 		'media',
 		'jabd_settings_section',
@@ -214,7 +214,7 @@ function jabd_init_settings() {
 
 	add_settings_field(
 		'jabd_secure_downloads',
-		__( 'Make downloads secure', 'st-bulk-download' ),
+		__( 'Make downloads secure', 'bulk-attachment-download' ),
 		'jabd_secure_downloads_cb',
 		'media',
 		'jabd_settings_section',
@@ -239,7 +239,7 @@ function jabd_max_size_input( $args ) {
 	}
 	?>
 	<input type="text" size="2" name="jabd_options[<?php echo $args['label_for']; ?>]" id="<?php echo $args['label_for']; ?>" value="<?php echo esc_attr( $option ); ?>" /> MB
-	<p class="description"><?php _e( 'Set a limit for the maximum uncompressed file size to be created as a downloadable zip.', 'st-bulk-download' ); ?></p>
+	<p class="description"><?php _e( 'Set a limit for the maximum uncompressed file size to be created as a downloadable zip.', 'bulk-attachment-download' ); ?></p>
 	<?php
 }
 
@@ -251,7 +251,7 @@ function jabd_int_sizes_default_cb( $args ) {
 	$option = isset( $options['jabd_int_sizes'] ) ? $options['jabd_int_sizes'] : 0;
 	?>
 	<input style="margin-top: 6px" type="checkbox" name="jabd_options[<?php echo $args['label_for']; ?>]" id="<?php echo $args['label_for']; ?>" value="1" <?php checked( $option ); ?> />
-	<p class="description"><?php _e( 'Check the box if you want to download all intermediate images sizes by default. (This can be changed for each download.)', 'st-bulk-download' ); ?></p>
+	<p class="description"><?php _e( 'Check the box if you want to download all intermediate images sizes by default. (This can be changed for each download.)', 'bulk-attachment-download' ); ?></p>
 	<?php
 }
 
@@ -263,7 +263,7 @@ function jabd_single_folder_default_cb( $args ) {
 	$option = isset( $options['jabd_no_folders'] ) ? $options['jabd_no_folders'] : 0;
 	?>
 	<input style="margin-top: 6px" type="checkbox" name="jabd_options[<?php echo $args['label_for']; ?>]" id="<?php echo $args['label_for']; ?>" value="1" <?php checked( $option ); ?> />
-	<p class="description"><?php _e( 'Check the box if you want the zip file to include all files in a single folder by default. (This can be changed for each download.)', 'st-bulk-download' ); ?></p>
+	<p class="description"><?php _e( 'Check the box if you want the zip file to include all files in a single folder by default. (This can be changed for each download.)', 'bulk-attachment-download' ); ?></p>
 	<?php
 }
 
@@ -275,7 +275,7 @@ function jabd_secure_downloads_cb( $args ) {
 	$option = isset( $options['jabd_secure_downloads'] ) ? $options['jabd_secure_downloads'] : 0;
 	?>
 	<input style="margin-top: 6px" type="checkbox" name="jabd_options[<?php echo $args['label_for']; ?>]" id="<?php echo $args['label_for']; ?>" value="1" <?php checked( $option ); ?> />
-	<p class="description"><?php _e( 'Choose whether or not to prevent others accessing downloads while they are (temporarily) stored on the server. There\'s no point doing this unless you are somehow also protecting access to the files in your Uploads folder.', 'st-bulk-download' ); ?></p>
+	<p class="description"><?php _e( 'Choose whether or not to prevent others accessing downloads while they are (temporarily) stored on the server. There\'s no point doing this unless you are somehow also protecting access to the files in your Uploads folder.', 'bulk-attachment-download' ); ?></p>
 	<?php
 }
 
@@ -330,7 +330,7 @@ function jabd_before_options_update( $value, $old_value, $option ) {
 				if ( ! $htaccess ) {
 					$args = array(
 						'id'		=>	'no_htaccess_update',
-						'message'	=>	__( 'Bulk downloads settings have not been updated. The .htaccess file preventing direct access to your downloads could not be created. This may be an issue with the way permissions are set on your server.', 'st-bulk-download' ),
+						'message'	=>	__( 'Bulk downloads settings have not been updated. The .htaccess file preventing direct access to your downloads could not be created. This may be an issue with the way permissions are set on your server.', 'bulk-attachment-download' ),
 						'screen_ids'	=>	array( 'options-media' )
 					);
 					Bulk_Attachment_Download_Admin_Notice_Manager::add_notice( $args );
@@ -343,7 +343,7 @@ function jabd_before_options_update( $value, $old_value, $option ) {
 						$args = array(
 							'id'			=>	'htaccess_permissions_error',
 							/* translators: Filepath to .htaccess file */
-							'message'		=>	sprintf( __( 'Bulk Attachment Download: The .htaccess file has been created to prevent access to downloads.  However the plugin could not confirm that permissions have been correctly set on the .htaccess file itself, which is a security risk. Please confirm that permissions on the file have been set to 0644 - it can be found at %s.', 'st-bulk-download' ), $disp_htaccess_path ),
+							'message'		=>	sprintf( __( 'Bulk Attachment Download: The .htaccess file has been created to prevent access to downloads.  However the plugin could not confirm that permissions have been correctly set on the .htaccess file itself, which is a security risk. Please confirm that permissions on the file have been set to 0644 - it can be found at %s.', 'bulk-attachment-download' ), $disp_htaccess_path ),
 							'type'			=>	'warning',
 							'screen_ids'	=>	array( 'options-media' ),
 							'persistent'	=>	true,
@@ -361,7 +361,7 @@ function jabd_before_options_update( $value, $old_value, $option ) {
 						$args = array(
 							'id'		=>	'no_htaccess_delete',
 							/* translators: Filepath to .htaccess file */
-							'message'	=>	sprintf( __( 'Bulk Attachment Download: The .htaccess file preventing direct access to your downloads could not be deleted. Please delete the file manually and then unset the %1$s setting again. The file can be found at %2$s. Alternatively you may uninstall and re-install the plugin.', 'st-bulk-download' ), __( 'Make downloads secure', 'st-bulk-download' ), $disp_htaccess_path ),
+							'message'	=>	sprintf( __( 'Bulk Attachment Download: The .htaccess file preventing direct access to your downloads could not be deleted. Please delete the file manually and then unset the %1$s setting again. The file can be found at %2$s. Alternatively you may uninstall and re-install the plugin.', 'bulk-attachment-download' ), __( 'Make downloads secure', 'bulk-attachment-download' ), $disp_htaccess_path ),
 							'screen_ids'	=>	array( 'options-media' ),
 							'persistent'		=>	true
 						);
@@ -395,7 +395,7 @@ function jabd_no_js_error_notice() {
 	?>
 <noscript>
 	<div class="notice notice-error is-dismissible">
-		<p><strong>Bulk Attachment Download: </strong><?php _e( 'This plugin does not function without Javascript enabled. Please enable Javascript or use another browser.', 'st-bulk-download' ); ?></p>
+		<p><strong>Bulk Attachment Download: </strong><?php _e( 'This plugin does not function without Javascript enabled. Please enable Javascript or use another browser.', 'bulk-attachment-download' ); ?></p>
 	</div>
 </noscript>
 	<?php
@@ -412,12 +412,12 @@ function jabd_add_opt_out_notices() {
 	
 	$list_mode_html = Bulk_Attachment_Download_Admin_Notice_Manager::dismiss_on_redirect_link( array(
 		'redirect'	=>	admin_url( 'upload.php?mode=list' ),
-		'content'	=>	_x( 'list mode', 'text for link to switch media mode', 'st-bulk-download' )
+		'content'	=>	_x( 'list mode', 'text for link to switch media mode', 'bulk-attachment-download' )
 	) );
 	
 	$opt_out_notices = array(
 		'number_of_media_items'	=>	array(
-			'message'			=>	'<strong>Bulk Attachment Download:</strong> ' . __( 'Don\'t forget you can change the number of media items per page (up to 999) by going to Screen Options at the top right of the screen.', 'st-bulk-download' ),
+			'message'			=>	'<strong>Bulk Attachment Download:</strong> ' . __( 'Don\'t forget you can change the number of media items per page (up to 999) by going to Screen Options at the top right of the screen.', 'bulk-attachment-download' ),
 			'type'				=>	'info',
 			'screen_ids'		=>	array( 'upload' ),
 			'persistent'		=>	true,
@@ -425,7 +425,7 @@ function jabd_add_opt_out_notices() {
 		),
 		'switch_to_list_mode'	=>	array(
 			/* translators: link to switch to list mode */
-			'message'			=>	'<strong>Bulk Attachment Download:</strong> ' . sprintf( __( 'To use bulk download, switch to %s.', 'st-bulk-download' ), $list_mode_html ),
+			'message'			=>	'<strong>Bulk Attachment Download:</strong> ' . sprintf( __( 'To use bulk download, switch to %s.', 'bulk-attachment-download' ), $list_mode_html ),
 			'type'				=>	'info',
 			'screen_ids'		=>	array( 'upload' ),
 			'persistent'		=>	true,
@@ -466,7 +466,7 @@ function jabd_add_opt_out_notices() {
 			
 			$rating_message = sprintf(
 				/* translators: 1: Number of downloads 2: opening html tag 3: closing html tag */
-				__( 'Hi, you and your fellow administrators have downloaded %1$s times using our %2$sBulk Attachment Download%3$s plugin – that’s awesome! If you\'re finding it useful and you have a moment, we\'d be massively grateful if you helped spread the word by rating the plugin on WordPress.', 'st-bulk-download' ),
+				__( 'Hi, you and your fellow administrators have downloaded %1$s times using our %2$sBulk Attachment Download%3$s plugin – that’s awesome! If you\'re finding it useful and you have a moment, we\'d be massively grateful if you helped spread the word by rating the plugin on WordPress.', 'bulk-attachment-download' ),
 				'<strong>' . $stored_options['download_count'] . '</strong>',
 				'<strong>',
 				'</strong>'
@@ -476,20 +476,20 @@ function jabd_add_opt_out_notices() {
 			
 			// First option - give a review
 			$rating_message .= '<span style="display: inline-block">' . Bulk_Attachment_Download_Admin_Notice_Manager::dismiss_on_redirect_link( array(
-				'content'	=>	__( 'Sure, I\'d be happy to', 'st-bulk-download' ),
+				'content'	=>	__( 'Sure, I\'d be happy to', 'bulk-attachment-download' ),
 				'redirect'	=>	$review_link,
 				'new_tab'	=>	true
 			) ) . ' &nbsp;|&nbsp;&nbsp;</span>';
 			
 			// Second option - not now
 			$rating_message .= '<span style="display: inline-block">' . Bulk_Attachment_Download_Admin_Notice_Manager::dismiss_event_button( array(
-				'content'	=>	__( 'Nope, maybe later', 'st-bulk-download' ),
+				'content'	=>	__( 'Nope, maybe later', 'bulk-attachment-download' ),
 				'event'		=>	''
 			) ) . ' &nbsp;|&nbsp;&nbsp;</span>';
 			
 			// Third option - already reviewed
 			$rating_message .= '<span style="display: inline-block">' . Bulk_Attachment_Download_Admin_Notice_Manager::dismiss_event_button( array(
-				'content'	=>	__( 'I already did', 'st-bulk-download' ),
+				'content'	=>	__( 'I already did', 'bulk-attachment-download' ),
 				'event'		=>	'prevent_rating_request'
 			) ) . '</span>';
 			
@@ -562,18 +562,18 @@ function jabd_prevent_rating_request( $user_id ) {
 function jabd_register_download_post_type() {
 	
 	$labels = array(			
-		'name'					=> _x( 'Downloads', 'post type general name', 'st-bulk-download' ),
-		'singular_name'			=> _x( 'Download', 'post type singular name', 'st-bulk-download' ),
-		'add_new'				=> _x( 'Add New', 'download item', 'st-bulk-download' ),
-		'add_new_item'			=> __( 'Add New Download', 'st-bulk-download'),
-		'edit_item'				=> __( 'Edit Download', 'st-bulk-download' ),
-		'view_item'				=> __( 'View Download', 'st-bulk-download' ),
-		'search_items'			=> __( 'Search Downloads', 'st-bulk-download' ),
-		'not_found'				=> __( 'No Downloads found', 'st-bulk-download' ),
-		'not_found_in_trash'	=> __('No Downloads found in Trash', 'st-bulk-download'), 
+		'name'					=> _x( 'Downloads', 'post type general name', 'bulk-attachment-download' ),
+		'singular_name'			=> _x( 'Download', 'post type singular name', 'bulk-attachment-download' ),
+		'add_new'				=> _x( 'Add New', 'download item', 'bulk-attachment-download' ),
+		'add_new_item'			=> __( 'Add New Download', 'bulk-attachment-download'),
+		'edit_item'				=> __( 'Edit Download', 'bulk-attachment-download' ),
+		'view_item'				=> __( 'View Download', 'bulk-attachment-download' ),
+		'search_items'			=> __( 'Search Downloads', 'bulk-attachment-download' ),
+		'not_found'				=> __( 'No Downloads found', 'bulk-attachment-download' ),
+		'not_found_in_trash'	=> __('No Downloads found in Trash', 'bulk-attachment-download'), 
 		'parent_item_colon'		=> '',
-		'all_items'				=> __( 'Bulk downloads', 'st-bulk-download' ),
-		'menu_name'				=> __( 'Bulk downloads', 'st-bulk-download' )
+		'all_items'				=> __( 'Bulk downloads', 'bulk-attachment-download' ),
+		'menu_name'				=> __( 'Bulk downloads', 'bulk-attachment-download' )
 	);
 	
 	$args = array(
@@ -633,8 +633,8 @@ function jabd_add_link_columns( $columns ) {
 	foreach ( $columns as $key => $column ) {
 		$new_columns[ $key ] = $column;
 		if ( 'title' == $key ) {
-			$new_columns['jabd_download_creator'] = __( 'Creator', 'st-bulk-download' );
-			$new_columns['jabd_download_button'] = __( 'Download', 'st-bulk-download' );
+			$new_columns['jabd_download_creator'] = __( 'Creator', 'bulk-attachment-download' );
+			$new_columns['jabd_download_button'] = __( 'Download', 'bulk-attachment-download' );
 		}
 	}
 	return $new_columns;
@@ -654,7 +654,7 @@ function jabd_add_link_columns_content( $column ) {
 			
 		case 'jabd_download_button' :
 		$disabled = ( 'trash' == $post->post_status || ! current_user_can( 'edit_post', $post->ID ) ) ? ' disabled' : '';
-			echo '<a href="'.get_post_permalink( $post->ID ).'"><button class="button button-primary button-large" type="button"'.$disabled. '>'.__( 'Download', 'st-bulk-download' ).'</button></a>';
+			echo '<a href="'.get_post_permalink( $post->ID ).'"><button class="button button-primary button-large" type="button"'.$disabled. '>'.__( 'Download', 'bulk-attachment-download' ).'</button></a>';
 			break;
 		
 	}
@@ -666,7 +666,7 @@ function jabd_add_link_columns_content( $column ) {
 function jabd_post_updated_messages( $messages ) {
 	global $post;
 	if ( 'jabd_download' == $post->post_type ) {
-		$messages['post'][1] = __( 'Download updated.', 'st-bulk-download' );
+		$messages['post'][1] = __( 'Download updated.', 'bulk-attachment-download' );
 	}
 	return $messages;
 }
@@ -724,7 +724,7 @@ function jabd_request_download() {
 
 	// check nonce
 	if ( ! check_ajax_referer( 'download-request-'.$user_id, 'downloadNonce', false ) ) {
-		$permissions_errors[] = __( 'Security checks failed.', 'st-bulk-download' );
+		$permissions_errors[] = __( 'Security checks failed.', 'bulk-attachment-download' );
 	}
 
 	// get file ids
@@ -756,7 +756,7 @@ function jabd_request_download() {
 	}
 	
 	if ( ! $valid_file_ids ) {
-		$permissions_errors[] = __( 'No valid files selected for download.', 'st-bulk-download' );
+		$permissions_errors[] = __( 'No valid files selected for download.', 'bulk-attachment-download' );
 	} else {
 		
 		// check permissions
@@ -767,7 +767,7 @@ function jabd_request_download() {
 		}
 		
 		if ( empty( $permitted_files ) ) {
-			$permissions_errors[] = __( 'You do not have permission to download any of the selected files.', 'st-bulk-download' );
+			$permissions_errors[] = __( 'You do not have permission to download any of the selected files.', 'bulk-attachment-download' );
 		}
 		
 	}
@@ -835,27 +835,27 @@ function jabd_request_download() {
 				}
 				
 				/* translators: Number of files */
-				$file_info = '<div>'.sprintf( __( 'Files: %s','st-bulk-download' ), $download_data_display['count'] );
+				$file_info = '<div>'.sprintf( __( 'Files: %s','bulk-attachment-download' ), $download_data_display['count'] );
 				if ( $download_data['count_incl_int'] > $download_data['count'] ) {
 					/* translators: Number of files */
-					$file_info .= sprintf( __( ' (%s if intermediate sizes included)' ,'st-bulk-download' ), $download_data_display['count_incl_int'] );
+					$file_info .= sprintf( __( ' (%s if intermediate sizes included)' ,'bulk-attachment-download' ), $download_data_display['count_incl_int'] );
 				}
 				/* translators: Size of files */
-				$file_info .= '</div><div>'.sprintf( __( 'Uncompressed files size: %s' ,'st-bulk-download' ), $download_data_display['size'] );
+				$file_info .= '</div><div>'.sprintf( __( 'Uncompressed files size: %s' ,'bulk-attachment-download' ), $download_data_display['size'] );
 				if ( $download_data['count_incl_int'] > $download_data['count'] ) {
 					/* translators: Number of files */
-					$file_info .= sprintf( __( ' (%s if intermediate sizes included)' ,'st-bulk-download' ), $download_data_display['size_incl_int'] );
+					$file_info .= sprintf( __( ' (%s if intermediate sizes included)' ,'bulk-attachment-download' ), $download_data_display['size_incl_int'] );
 				}
 				$file_info .= '</div>';
 				
-				$download_btn_html = '<button id="jabd-create-download" type="button" class="button button-primary button-large">'.__( 'Create download', 'st-bulk-download' ).'</button>&nbsp; ';
+				$download_btn_html = '<button id="jabd-create-download" type="button" class="button button-primary button-large">'.__( 'Create download', 'bulk-attachment-download' ).'</button>&nbsp; ';
 				
 				$incl_int_sizes_default = isset( $settings['jabd_int_sizes'] ) ? $settings['jabd_int_sizes'] : 0;
 				$jabd_no_folders = isset( $settings['jabd_no_folders'] ) ? $settings['jabd_no_folders'] : 0;
 				
 				$results_message =
 '<div class="jabd-popup-text-block">
-	<strong>'.__( 'File info', 'st-bulk-download' ).'</strong>
+	<strong>'.__( 'File info', 'bulk-attachment-download' ).'</strong>
 	'.$file_info.'
 </div>';
 
@@ -866,7 +866,7 @@ function jabd_request_download() {
 '<div class="jabd-popup-text-block" style="color: red">
 	'.sprintf (
 	/* translators: File size limit in MB */	
-		__( 'Your selected files exceed the limit of %sMB', 'st-bulk-download' ), $max_file_size
+		__( 'Your selected files exceed the limit of %sMB', 'bulk-attachment-download' ), $max_file_size
 	).'
 </div>';
 				} elseif ( ! $under_int_file_limit ) {
@@ -874,7 +874,7 @@ function jabd_request_download() {
 '<div class="jabd-popup-text-block" style="color: red">
 	'.sprintf (
 		/* translators: File size limit in MB */
-		__( 'Downloading intermediate sizes will exceed limit of %sMB', 'st-bulk-download' ), $max_file_size
+		__( 'Downloading intermediate sizes will exceed limit of %sMB', 'bulk-attachment-download' ), $max_file_size
 	).'
 </div>';
 				}
@@ -883,24 +883,24 @@ function jabd_request_download() {
 				
 					$results_message .=
 '<div class="jabd-popup-text-block">
-	<strong>'.__( 'Options', 'st-bulk-download' ).'</strong><br />
+	<strong>'.__( 'Options', 'bulk-attachment-download' ).'</strong><br />
 	<div'.( $under_int_file_limit ? '' : ' style="color: grey"' ).'>
 		<input id="jabd-int-sizes-chkbox" type="checkbox" '.( $under_int_file_limit ? checked( $incl_int_sizes_default, true, false ) : 'style="cursor: default" disabled' ).'/>
-		<label'.( $under_int_file_limit ? '' : ' style="cursor: default"' ).' for="jabd-int-sizes-chkbox">'.__( 'Include image intermediate sizes', 'st-bulk-download' ).'</label><br />
+		<label'.( $under_int_file_limit ? '' : ' style="cursor: default"' ).' for="jabd-int-sizes-chkbox">'.__( 'Include image intermediate sizes', 'bulk-attachment-download' ).'</label><br />
 	</div>
 	<div>
 		<input id="jabd-no-folder-chkbox" type="checkbox" '.checked( $jabd_no_folders, true, false ).'/>
-		<label for="jabd-no-folder-chkbox">'.__( 'Single folder download (any duplicate filenames will be amended)', 'st-bulk-download' ).'</label>
+		<label for="jabd-no-folder-chkbox">'.__( 'Single folder download (any duplicate filenames will be amended)', 'bulk-attachment-download' ).'</label>
 	</div>
 </div>
 <div class="jabd-popup-msg">
-	<span>'.__( 'Download title (optional)', 'st-bulk-download' ).'&nbsp;</span>
+	<span>'.__( 'Download title (optional)', 'bulk-attachment-download' ).'&nbsp;</span>
 	<input type="text" />
 </div>';
 				}
 
 				$results_message .=
-	'<div class="jabd-popup-buttons">'.$download_btn_html.jabd_close_popup_btn( __( 'Cancel', 'st-bulk-download' ) ).'</div>';
+	'<div class="jabd-popup-buttons">'.$download_btn_html.jabd_close_popup_btn( __( 'Cancel', 'bulk-attachment-download' ) ).'</div>';
 
 				$ajax_result = array( 'messages' => $results_message );
 		
@@ -1021,9 +1021,9 @@ function jabd_request_download() {
 								),
 							) );
 							
-							$results_msg = '<div class="jabd-popup-msg"><span>'.__( 'Download created!', 'st-bulk-download' ).'</span></div>';
-							$results_view_btn = '<a href = "'.admin_url( 'edit.php?post_type=jabd_download' ).'"><button class="button button-primary button-large">'.__( 'View', 'st-bulk-download' ).'</button></a>&nbsp; ';
-							$results_close_btn = '<button id="jabd-close-download-popup" class="button button-primary button-large">'.__( 'Close', 'st-bulk-download' ).'</button>';
+							$results_msg = '<div class="jabd-popup-msg"><span>'.__( 'Download created!', 'bulk-attachment-download' ).'</span></div>';
+							$results_view_btn = '<a href = "'.admin_url( 'edit.php?post_type=jabd_download' ).'"><button class="button button-primary button-large">'.__( 'View', 'bulk-attachment-download' ).'</button></a>&nbsp; ';
+							$results_close_btn = '<button id="jabd-close-download-popup" class="button button-primary button-large">'.__( 'Close', 'bulk-attachment-download' ).'</button>';
 							$results_btns = '<div class="jabd-popup-buttons">'.$results_view_btn.$results_close_btn.'</div>';
 							
 							$ajax_result = array(
@@ -1031,23 +1031,23 @@ function jabd_request_download() {
 							);
 						
 						} else { //zip file does not exist
-							$permissions_errors[] = __( 'Error. Your download could not be created.', 'st-bulk-download' );
+							$permissions_errors[] = __( 'Error. Your download could not be created.', 'bulk-attachment-download' );
 						}
 						
 					} else { // zip file could not be created
-						$permissions_errors[] = __( 'Error. Your download could not be created.', 'st-bulk-download' );
+						$permissions_errors[] = __( 'Error. Your download could not be created.', 'bulk-attachment-download' );
 					}
 					
 				} else { // ziparchive class not found
-					$permissions_errors[] = __( 'Error. Your download could not be created. It looks like you don\'t have ZipArchive installed on your server.', 'st-bulk-download' );
+					$permissions_errors[] = __( 'Error. Your download could not be created. It looks like you don\'t have ZipArchive installed on your server.', 'bulk-attachment-download' );
 				}
 				
 			} else { // no action specified in ajax posted data
-				$permissions_errors[] = __( 'Error. Your download could not be created.', 'st-bulk-download' );
+				$permissions_errors[] = __( 'Error. Your download could not be created.', 'bulk-attachment-download' );
 			}
 			
 		} else { // no valid files selected
-			$permissions_errors[] = __( 'Error. No files selected that you are permitted to download.', 'st-bulk-download' );
+			$permissions_errors[] = __( 'Error. No files selected that you are permitted to download.', 'bulk-attachment-download' );
 		}
 
 	}
@@ -1057,7 +1057,7 @@ function jabd_request_download() {
 		$results_msg = '<div class="jabd-popup-msg"><span>'.$permissions_errors[0].'</span></div>';
 		
 		$ajax_result = array(
-			'messages'	=> $results_msg.jabd_close_popup_btn( __( 'Close', 'st-bulk-download' ) )
+			'messages'	=> $results_msg.jabd_close_popup_btn( __( 'Close', 'bulk-attachment-download' ) )
 		);
 		
 	}

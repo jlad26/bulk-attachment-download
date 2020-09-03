@@ -7,7 +7,7 @@
  * Version:			1.2.3
  * Author:			Jon Anwyl
  * Author URI:		http://www.sneezingtrees.com
- * Text Domain:		st-bulk-download
+ * Text Domain:		bulk-attachment-download
  * Domain Path:		/languages
  * License:			GPL2
  * License URI:		https://www.gnu.org/licenses/gpl-2.0.html
@@ -35,7 +35,7 @@ require_once JABD_PLUGIN_DIR.'incl/admin-notice-manager/class-admin-notice-manag
 Bulk_Attachment_Download_Admin_Notice_Manager::init( array(
 	'plugin_name'		=>	'Bulk Attachment Download',
 	'manager_id'		=>	'jabd',
-	'text_domain'		=>	'st-bulk-download',
+	'text_domain'		=>	'bulk-attachment-download',
 	'version'			=>	JABD_VERSION
 ) );
 
