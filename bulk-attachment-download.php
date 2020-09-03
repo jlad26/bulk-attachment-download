@@ -9,7 +9,7 @@
  * Author URI:		http://www.sneezingtrees.com
  * Text Domain:		bulk-attachment-download
  * Domain Path:		/languages
- * License:			GPL2
+ * License:			GPLv2
  * License URI:		https://www.gnu.org/licenses/gpl-2.0.html
  */
 
