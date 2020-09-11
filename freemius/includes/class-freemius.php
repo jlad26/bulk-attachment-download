@@ -16830,12 +16830,13 @@
                 // Remove plugin from pending activation mode.
                 unset( $this->_storage->is_pending_activation );
 
-                if ( ! $this->is_paying_or_trial() ) {
-                    $this->_admin_notices->add_sticky(
-                        sprintf( $this->get_text_inline( '%s activation was successfully completed.', 'plugin-x-activation-message' ), '<b>' . $this->get_plugin_name() . '</b>' ),
-                        'activation_complete'
-                    );
-                }
+                /* Bulk Attachment Download: Removed as we have our own welcome message */
+				//if ( ! $this->is_paying_or_trial() ) {
+                //    $this->_admin_notices->add_sticky(
+                //        sprintf( $this->get_text_inline( '%s activation was successfully completed.', 'plugin-x-activation-message' ), '<b>' . $this->get_plugin_name() . '</b>' ),
+                //        'activation_complete'
+                //    );
+                //}
             }
 
             if ( $this->is_paying_or_trial() ) {
