@@ -4,9 +4,9 @@
  * Plugin Name:		Bulk Attachment Download
  * Plugin URI:		https://wordpress.org/plugins/bulk-attachment-download/
  * Description:		Bulk download media or attachments selectively from your Media Library as a zip file. Options include: a) Include / exclude intermediate image sizes; b) Keep / collapse the uploads folder structure.
- * Version:			1.2.3
+ * Version:			1.2.4
  * Author:			Jon Anwyl
- * Author URI:		http://www.sneezingtrees.com
+ * Author URI:		https://www.sneezingtrees.com
  * Text Domain:		bulk-attachment-download
  * Domain Path:		/languages
  * License:			GPLv2
@@ -22,10 +22,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 /*Setup*/
 
 //define constants
+if ( ! defined( 'JABD_PLUGIN_NAME' ) ) define( 'JABD_PLUGIN_NAME', 'Bulk Attachment Download' );
 if ( ! defined( 'JABD_PLUGIN_DIR' ) ) define( 'JABD_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 if ( ! defined( 'JABD_PLUGIN_BASE_URL' ) ) define( 'JABD_PLUGIN_BASE_URL', plugin_dir_url( __FILE__ ) );
 if ( ! defined( 'JABD_DOWNLOADS_DIR' ) ) define( 'JABD_DOWNLOADS_DIR', 'jabd-downloads' );
-if ( ! defined( 'JABD_VERSION' ) ) define( 'JABD_VERSION', '1.2.3' );
+if ( ! defined( 'JABD_VERSION' ) ) define( 'JABD_VERSION', '1.2.4' );
 
 //include functions
 require_once JABD_PLUGIN_DIR.'incl/jabd-functions.php';
@@ -63,7 +64,7 @@ if ( ! function_exists( 'jabd_fs' ) ) {
                 'has_addons'          => false,
                 'has_paid_plans'      => false,
                 'menu'                => array(
-                    'first-path'     => 'options-media.php',
+                    'first-path'     => 'plugins.php',
                     'account'        => false,
                     'contact'        => false,
                     'support'        => false,

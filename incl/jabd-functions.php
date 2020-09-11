@@ -126,32 +126,60 @@ function jabd_delete_download_posts() {
 add_action( 'jabd_hourly_event', 'jabd_delete_download_posts' );
 
 /**
- * Run upgrade processes on upgrade.
+ * Run processes on upgrade and installation.
  * @hooked plugins_loaded
  */
 function jabd_check_version() {
 	$prev_version = get_option( 'jabd_version' );
 	if ( JABD_VERSION !== $prev_version ) {
 		update_option( 'jabd_version', JABD_VERSION );
-		add_action( 'admin_init', 'jabd_on_plugin_upgrade', $prev_version );
+		
+		if ( ! $prev_version ) {
+			jabd_on_plugin_installation();
+		} else {
+			jabd_on_plugin_upgrade();
+		}
+	
 	}
 }
 
 /**
  * Processes to be run on upgrade.
  */
-function jabd_on_plugin_upgrade( $prev_version ) {
-	if ( empty( $prev_version ) ) {
-		$prev_version = 0;
-	}
-	$current_version = intval( str_replace( '.', '', JABD_VERSION ) );
+function jabd_on_plugin_upgrade() {
+
 	
-	// If 1.1.4 or earlier (prior to storing of version)...
-	if ( ! $prev_version ) {
-		// Remove deprecated options and usermeta from db
-		delete_option( 'jabd_notices' );
-		delete_metadata( 'user', 0, 'jabd_dismissed_notices', false, true );
-	}
+	
+}
+
+/**
+ * Processes to be run on installation.
+ */
+function jabd_on_plugin_installation() {
+
+	/**
+	 * Remove deprecated options and usermeta from db since these may have been present from
+	 * versions prior to 1.1.4, and version was not stored in those versions.
+	 */
+	delete_option( 'jabd_notices' );
+	delete_metadata( 'user', 0, 'jabd_dismissed_notices', false, true );
+	
+	// add greeting and guidance message
+	$notice_args = array(
+		'id'					=>	'greeting_on_installation',
+		'type'					=>	'success',
+		/* translators: 1: plugin name 2: html for link to Media settings page 3: html for link to Media page */
+		'message'				=>	sprintf(
+										__( '%1$s has been activated. For settings and guidance go to the %2$s page. Or you can go straight to your %3$s where the Download option is now available in the Bulk actions dropdown.', 'bulk-attachment-download' ),
+										'<strong>' . JABD_PLUGIN_NAME . '</strong>',
+										'<a href="' . esc_url( admin_url( 'options-media.php' ) ) . '">' . __( 'Media settings', 'bulk-attachment-download' ) . '</a>',
+										'<a href="' . esc_url( admin_url( 'upload.php' ) ) . '">' . __( 'Media Library', 'bulk-attachment-download' ) . '</a>'
+									),
+		'persistent'			=>	true,
+		'no_js_dismissable'		=>	true,
+		'screen_ids'			=>	array( 'plugins' )
+	);
+	Bulk_Attachment_Download_Admin_Notice_Manager::add_notice( $notice_args );
 	
 }
 
@@ -170,7 +198,7 @@ function jabd_init_settings() {
 	// register a new section in the "Media" page
 	add_settings_section(
 		'jabd_settings_section',
-		__( 'Bulk Attachment Download', 'bulk-attachment-download' ),
+		JABD_PLUGIN_NAME,
 		null,
 		'media'
 	);
@@ -343,7 +371,7 @@ function jabd_before_options_update( $value, $old_value, $option ) {
 						$args = array(
 							'id'			=>	'htaccess_permissions_error',
 							/* translators: Filepath to .htaccess file */
-							'message'		=>	sprintf( __( 'Bulk Attachment Download: The .htaccess file has been created to prevent access to downloads.  However the plugin could not confirm that permissions have been correctly set on the .htaccess file itself, which is a security risk. Please confirm that permissions on the file have been set to 0644 - it can be found at %s.', 'bulk-attachment-download' ), $disp_htaccess_path ),
+							'message'		=>	JABD_PLUGIN_NAME . ': '. sprintf( __( 'The .htaccess file has been created to prevent access to downloads. However the plugin could not confirm that permissions have been correctly set on the .htaccess file itself, which is a security risk. Please confirm that permissions on the file have been set to 0644 - it can be found at %s.', 'bulk-attachment-download' ), $disp_htaccess_path ),
 							'type'			=>	'warning',
 							'screen_ids'	=>	array( 'options-media' ),
 							'persistent'	=>	true,
@@ -361,7 +389,7 @@ function jabd_before_options_update( $value, $old_value, $option ) {
 						$args = array(
 							'id'		=>	'no_htaccess_delete',
 							/* translators: Filepath to .htaccess file */
-							'message'	=>	sprintf( __( 'Bulk Attachment Download: The .htaccess file preventing direct access to your downloads could not be deleted. Please delete the file manually and then unset the %1$s setting again. The file can be found at %2$s. Alternatively you may uninstall and re-install the plugin.', 'bulk-attachment-download' ), __( 'Make downloads secure', 'bulk-attachment-download' ), $disp_htaccess_path ),
+							'message'	=>	JABD_PLUGIN_NAME . ': ' . sprintf( __( 'The .htaccess file preventing direct access to your downloads could not be deleted. Please delete the file manually and then unset the Make downloads secure setting again. The file can be found at %s. Alternatively you may uninstall and re-install the plugin.', 'bulk-attachment-download' ), $disp_htaccess_path ),
 							'screen_ids'	=>	array( 'options-media' ),
 							'persistent'		=>	true
 						);
@@ -395,7 +423,7 @@ function jabd_no_js_error_notice() {
 	?>
 <noscript>
 	<div class="notice notice-error is-dismissible">
-		<p><strong>Bulk Attachment Download: </strong><?php _e( 'This plugin does not function without Javascript enabled. Please enable Javascript or use another browser.', 'bulk-attachment-download' ); ?></p>
+		<p><strong><?php echo JABD_PLUGIN_NAME ?>: </strong><?php _e( 'This plugin does not function without Javascript enabled. Please enable Javascript or use another browser.', 'bulk-attachment-download' ); ?></p>
 	</div>
 </noscript>
 	<?php
@@ -417,7 +445,7 @@ function jabd_add_opt_out_notices() {
 	
 	$opt_out_notices = array(
 		'number_of_media_items'	=>	array(
-			'message'			=>	'<strong>Bulk Attachment Download:</strong> ' . __( 'Don\'t forget you can change the number of media items per page (up to 999) by going to Screen Options at the top right of the screen.', 'bulk-attachment-download' ),
+			'message'			=>	'<strong>' . JABD_PLUGIN_NAME . ':</strong> ' . __( 'Don\'t forget you can change the number of media items per page (up to 999) by going to Screen Options at the top right of the screen.', 'bulk-attachment-download' ),
 			'type'				=>	'info',
 			'screen_ids'		=>	array( 'upload' ),
 			'persistent'		=>	true,
@@ -425,7 +453,7 @@ function jabd_add_opt_out_notices() {
 		),
 		'switch_to_list_mode'	=>	array(
 			/* translators: link to switch to list mode */
-			'message'			=>	'<strong>Bulk Attachment Download:</strong> ' . sprintf( __( 'To use bulk download, switch to %s.', 'bulk-attachment-download' ), $list_mode_html ),
+			'message'			=>	'<strong>' . JABD_PLUGIN_NAME . ':</strong> ' . sprintf( __( 'To use bulk download, switch to %s.', 'bulk-attachment-download' ), $list_mode_html ),
 			'type'				=>	'info',
 			'screen_ids'		=>	array( 'upload' ),
 			'persistent'		=>	true,
@@ -465,11 +493,10 @@ function jabd_add_opt_out_notices() {
 		if ( isset( $downloads_passed ) ) {
 			
 			$rating_message = sprintf(
-				/* translators: 1: Number of downloads 2: opening html tag 3: closing html tag */
-				__( 'Hi, you and your fellow administrators have downloaded %1$s times using our %2$sBulk Attachment Download%3$s plugin – that’s awesome! If you\'re finding it useful and you have a moment, we\'d be massively grateful if you helped spread the word by rating the plugin on WordPress.', 'bulk-attachment-download' ),
+				/* translators: 1: Number of downloads 2: plugin name */
+				__( 'Hi, you and your fellow administrators have downloaded %1$s times using our %2$s plugin – that’s awesome! If you\'re finding it useful and you have a moment, we\'d be massively grateful if you helped spread the word by rating the plugin on WordPress.', 'bulk-attachment-download' ),
 				'<strong>' . $stored_options['download_count'] . '</strong>',
-				'<strong>',
-				'</strong>'
+				'<strong>' . JABD_PLUGIN_NAME . '</strong>'
 			) . '<br />';
 
 			$review_link = 'https://wordpress.org/support/plugin/bulk-attachment-download/reviews/';
