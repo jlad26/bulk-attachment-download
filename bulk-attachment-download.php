@@ -135,6 +135,10 @@ foreach ( $count_triggers as $count_trigger ) {
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
+/*Add settings and guidance link to description on plugins page*/
+add_filter( 'plugin_row_meta', 'jabd_plugin_row_meta', 10, 2 );
+
+/*---------------------------------------------------------------------------------------------------------*/
 /*Add admin js and css*/
 add_action( 'admin_enqueue_scripts', 'jabd_admin_enqueue_scripts' );
 

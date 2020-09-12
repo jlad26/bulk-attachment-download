@@ -128,8 +128,11 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 				add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
 				add_action( 'wp_ajax_' . self::$manager_id . '_dismiss_admin_notice', array( __CLASS__, 'dismiss_notice' ) );
 
-				// Display error message if not initialized correctly
+				// Display error message if not initialized correctly.
 				add_action( 'admin_init', array( __CLASS__, 'check_manager_id' ) );
+				
+				// Filter usermeta so that a null result is returned as an empty array instead of a string.
+				add_filter( 'default_user_metadata', array( __CLASS__, 'convert_empty_usermeta_string_to_array' ), 10, 5 );
 				
 			}
 
@@ -161,6 +164,7 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 			if ( 'anm' == self::$manager_id || ( ! is_string( self::$manager_id ) && ! is_int( self::$manager_id ) ) ) {
 				$notice = array(
 					'id'			=>	'anm_initialization_warning',
+					/* translators: Class name */
 					'message'		=>	sprintf( __( 'Admin Notice Manager: Unique identifier not set, so conflicts may occur. Please set a valid unique identifer when the %s class is initialized. This must be either a string or an integer.', self::$text_domain ), get_called_class() ),
 					'type'			=>	'error',
 					'user_ids'		=>	array( 'administrator' ),
@@ -187,6 +191,20 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 	}
 	
 	/**
+	 * Filter usermeta so that a null result for any of our usermeta entries is returned as an empty array instead of a string.
+	 *
+	 * @hooked default_user_metadata
+	 */
+	public static function convert_empty_usermeta_string_to_array( $value, $object_id, $meta_key, $single, $meta_type ) {
+		if ( '' === $value ) {
+			if ( in_array( $meta_key, array( self::$manager_id . '_admin_notices', self::$manager_id . '_opt_out_notice_dismissals' ) ) ) {
+				$value = array();
+			}
+		}
+		return $value;
+	}
+	
+	/**
 	 * Add a new notice.
 	 *
 	 * @param	array	$notice {
@@ -202,12 +220,12 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 	 *													for users with ids of 3, 55 and 153, and for all users that are administrators or editors.
 	 *													Default is current user id.										
 	 * 		@type	array			$screen_ids			Array of screen ids on which message should be displayed.
-	 * 													Set to empty array for all screens. If left unset the current screen is set if possible,
-	 *													it is recommended to explicitly specify the desired screen rather than leaving unset.
-	 *													If during testing the notice is set on a screen that is then not viewed because of a redirect
-	 *													(e.g. options), changing the screen in the notice args will have no effect because the notice
-	 *													has been stored in the db and will not be updated.
-	 *													Default is empty array (all screens ) for one-time messages, and current screen for persistent.
+	 * 													Set to empty array for all screens. If during testing the notice is set on a screen
+	 * 													that is then not viewed because of a redirect (e.g. options),
+	 * 													changing the screen in the notice args will have no effect because the notice
+	 *													has been stored in the db and will not be updated. Default is empty array (all screens )
+	 * 													for one-time messages, and current screen for persistent. Note that if current screen is
+	 *													desired, it is recommended where possible to set the screen id explicitly.
 	 * 		@type	array			$post_ids			Array of post ids on which message should be displayed. Empty array means all posts.
 	 *													Default is all posts.
 	 * 		@type	string			$persistent			True for persistent, false for one-time. Default is false.
@@ -224,7 +242,7 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 	public static function add_notice( array $notice ) {
 		
 		$notice = self::parse_notice_args( $notice );
-		
+
 		if ( is_wp_error( $notice ) ) {
 			self::add_error_notice( $notice );
 			return false;
@@ -242,7 +260,7 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 		// Add new notices to existing notices.
 		$new_notices = array();
 		foreach ( $user_ids as $user_id ) {
-			
+
 			// Load user's current notices if not already set.
 			if ( ! isset( $notices[ $user_id ] ) ) {
 				$notices[ $user_id ] = get_user_meta( $user_id, self::$manager_id . '_admin_notices', true );
@@ -272,9 +290,11 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 		$messages = $errors->get_error_messages();
 		$data = $errors->get_error_data( 'notice_data_provided_for_validation' );
 		$error_message = sprintf(
+			/* translators: Plugin name */
 			__( 'Please communicate this error message to the developer of %s through the WP support forums.', self::$text_domain ),
 			self::$plugin_name
 		) . '<br />';
+		/* translators: Plugin name */
 		$error_message .= '<strong>' . sprintf( __( '%s Admin Notice Manager errors:', self::$text_domain ), self::$plugin_name ) . '</strong><br />';
 		$error_message .= implode( '<br />', $messages ) . '<br />';
 		$error_message .= '<strong>' . __( 'Notice data:', self::$text_domain ) . '</strong><br />' . print_r( $data, true );
@@ -451,7 +471,7 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 						
 					case 'screen_ids' :
 						$error_message = sprintf(
-							__( 'Invalid screen ids - must either be an empty array, or an array of strings.', $domain ),
+							__( 'Invalid screen ids - must either be an empty array or an array of strings.', $domain ),
 							'current'
 						);
 						if ( ! is_array( $value ) ) {
@@ -484,6 +504,7 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 					case 'dismissable' :
 					case 'dismiss_all' :
 						if ( ! is_bool( $value ) ) {
+							/* translators: Notice argument key - one of persistent, dismissable, or dismiss_all */
 							$errors->add( 'type', sprintf( __( 'Invalid value for %s - must be boolean.', $domain ), $key ) );
 						}
 						break;
@@ -967,7 +988,7 @@ class Bulk_Attachment_Download_Admin_Notice_Manager {
 					}
 					
 				} else {
-				
+					
 					// Dismiss opt out notice if required.
 					self::dismiss_opt_out_notice( $notice_id, $user->ID, $event );
 					

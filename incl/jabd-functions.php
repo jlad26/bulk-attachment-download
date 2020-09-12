@@ -31,7 +31,7 @@ function jabd_admin_enqueue_scripts( $hook ) {
 		wp_enqueue_script( 'jabd-admin-upload-js', JABD_PLUGIN_BASE_URL.'js/admin-upload.js', array( 'jquery' ), '1.0.0' );
 
 		$localization_array = array(
-			'download_option' 			=> __( 'Download', 'bulk-attachment-download' ),
+			'download_option' 			=> _x( 'Download', 'action', 'bulk-attachment-download' ),
 			'download_launched_msg'		=> __( 'Please wait, your download is being created.', 'bulk-attachment-download' ),
 			'gathering_data_msg'		=> __( 'Gathering data...', 'bulk-attachment-download' ),
 			'download_nonce'			=> wp_create_nonce( 'download-request-'.get_current_user_id() ),
@@ -53,6 +53,17 @@ function jabd_admin_enqueue_scripts( $hook ) {
 		wp_enqueue_style(
 			'jabd-admin-downloads-css',
 			JABD_PLUGIN_BASE_URL.'css/downloads-style.css'
+		);
+		
+	} elseif ( 'options-media.php' == $hook ) { // we are on media settings
+		
+		// JS for handling show / hide of guidance
+		wp_enqueue_script( 'jabd-guidance-display-js', JABD_PLUGIN_BASE_URL.'js/admin-options-media.js', array( 'jquery' ), '1.0.0' );
+		
+		// CSS for styling guidance section
+		wp_enqueue_style(
+			'jabd-admin-media-settings-css',
+			JABD_PLUGIN_BASE_URL.'css/media-settings-style.css'
 		);
 		
 	}
@@ -168,12 +179,13 @@ function jabd_on_plugin_installation() {
 	$notice_args = array(
 		'id'					=>	'greeting_on_installation',
 		'type'					=>	'success',
-		/* translators: 1: plugin name 2: html for link to Media settings page 3: html for link to Media page */
 		'message'				=>	sprintf(
-										__( '%1$s has been activated. For settings and guidance go to the %2$s page. Or you can go straight to your %3$s where the Download option is now available in the Bulk actions dropdown.', 'bulk-attachment-download' ),
+										/* translators: 1: plugin name 2: opening anchor tag 3: closing anchor tag 4: opening anchor tag */
+										__( '%1$s has been activated. For settings and guidance go to the %2$sMedia settings%3$s page. Or you can go straight to your %4$sMedia%3$s where the Download option is now available in the Bulk actions dropdown.', 'bulk-attachment-download' ),
 										'<strong>' . JABD_PLUGIN_NAME . '</strong>',
-										'<a href="' . esc_url( admin_url( 'options-media.php' ) ) . '">' . __( 'Media settings', 'bulk-attachment-download' ) . '</a>',
-										'<a href="' . esc_url( admin_url( 'upload.php' ) ) . '">' . __( 'Media Library', 'bulk-attachment-download' ) . '</a>'
+										'<a href="' . esc_url( admin_url( 'options-media.php' ) ) . '">',
+										'</a>',
+										'<a href="' . esc_url( admin_url( 'upload.php' ) ) . '">'
 									),
 		'persistent'			=>	true,
 		'no_js_dismissable'		=>	true,
@@ -198,8 +210,8 @@ function jabd_init_settings() {
 	// register a new section in the "Media" page
 	add_settings_section(
 		'jabd_settings_section',
-		JABD_PLUGIN_NAME,
-		null,
+		'<span id="jabd-settings">' . JABD_PLUGIN_NAME . '</span>',
+		'jabd_guidance_section',
 		'media'
 	);
 	
@@ -252,6 +264,47 @@ function jabd_init_settings() {
 		)
     );
 
+}
+
+/**
+ * Output the guidance section
+ */
+function jabd_guidance_section() {
+	
+	$output_html = '<div class="jabd-guidance-container"><h3><span class="hide-if-js">' . __( 'Guidance', 'bulk-attachment-download' ) . '</span>';
+	$output_html .= '<button type="button" class="hide-if-no-js jabd-link-button jabd-guidance-link">';
+	$output_html .= _x( 'Show Guidance', 'Display hidden content', 'bulk-attachment-download' ) . '&nbsp;&#9660</button>';
+	$output_html .= '<button type="button" class="hide-if-no-js jabd-link-button jabd-guidance-link" style="display: none">';
+	$output_html .= _x( 'Hide Guidance', 'Hide content', 'bulk-attachment-download' ) . '&nbsp;&#9650</button></h3>';
+	$guidance_html = '<p>' . __( 'To download attachments in bulk:' , 'bulk-attachment-download' ) . '</p>';
+	$guidance_html .= '<ol><li>' . sprintf(
+	/* translators: 1: Opening anchor tag 2: Closing anchor tag 3: Opening <strong> tag 4: Closing </strong> tag */
+		__( 'Go to your %1$sMedia Library%2$s and make sure that you are viewing it in %3$sList mode%4$s. If you can see a checkbox against each of the images then you\'re good to go. If not, then you\'ll need to switch to %3$sList mode%4$s' , 'bulk-attachment-download' ),
+		'<a href="' . esc_url( admin_url( 'upload.php' ) ) . '">',
+		'</a>',
+		'<strong>',
+		'</strong>' ) . ' ';
+	$guidance_html .= '(<a href="https://wordpress.org/support/article/media-library-screen/#media-library" target="_blank">' . __( 'How?', 'bulk-attachment-download' ) . '</a>).';
+	/* translators: 1: Opening <strong> tag 2: Closing </strong> tag */
+	$guidance_html .= '</li><li>' . sprintf( __( 'Select the files you want to download. Remember you can change how many items are displayed per page by going to %1$sScreen Options%2$s at the top right of the page.', 'bulk-attachment-download' ),
+		'<strong>',
+		'</strong>' ) . '</li>';
+	/* translators: 1: Opening <strong> tag 2: Closing </strong> tag */
+	$guidance_html .= '<li>' . sprintf( __( 'Select %1$sDownload%2$s in the %1$sBulk actions%2$s dropdown and click %1$sApply%2$s. You will then be able to choose from a series of options before creating your zip file ready for download.', 'bulk-attachment-download' ),
+		'<strong>',
+		'</strong>' ) . '</li>';
+	/* translators: 1: link to "Bulk downloads" 2: Opening <strong> tag 3: Closing </strong> tag */
+	$guidance_html .= '<li>' . sprintf( __( 'Your newly created zip file is ready for download on the %1$ page, accessible via sub-menu under %2$sMedia%3$s on the main toolbar. Just click the relevant %2$sDownload%3$s button and the corresponding zip file will be downloaded by your browser.', 'bulk-attachment-download' ),
+		'<a href="' . esc_url( admin_url( 'edit.php?post_type=jabd_download' ) ) . '">' . __( 'Bulk downloads', 'bulk-attachment-download' ) . '</a>',
+		'<strong>',
+		'</strong>' ) . '</li>';
+	/* translators: 1: Opening <strong> tag 2: Closing </strong> tag */
+	$guidance_html .= '</ol><p>' . sprintf( __( 'Zip files and their corresponding %1$sDownload%2$s buttons are removed automatically 1-2 hours after their creation, so you don\'t have to worry about using up your server storage quota.', 'bulk-attachment-download' ),
+	'<strong>',
+	'</strong>' ) . '</p>';
+	$output_html .= '<div class="jabd-guidance hide-if-js">' . $guidance_html . '</div><h3>' . __( 'Settings' ) . '</h3></div>';
+	echo $output_html;
+	
 }
 
 /**
@@ -405,6 +458,27 @@ function jabd_before_options_update( $value, $old_value, $option ) {
 	}
 	
 	return $value;
+}
+
+/*---------------------------------------------------------------------------------------------------------*/
+/*Plugin page*/
+
+/**
+ * Add settings and guidance link to description on plugins page.
+ * @hooked plugin_row_meta
+ */
+function jabd_plugin_row_meta( $links, $file ) {
+	
+	if ( strpos( $file, 'bulk-attachment-download.php' ) !== false ) {
+		$new_links = array(
+			'<a href="' . esc_url( admin_url( 'options-media.php#jabd-settings' ) ) . '">' . __( 'Settings and guidance', 'bulk-attachment-download' ) . '</a>'
+			);
+		
+		$links = array_merge( $links, $new_links );
+	}
+	
+	return $links;
+	
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
@@ -589,8 +663,8 @@ function jabd_prevent_rating_request( $user_id ) {
 function jabd_register_download_post_type() {
 	
 	$labels = array(			
-		'name'					=> _x( 'Downloads', 'post type general name', 'bulk-attachment-download' ),
-		'singular_name'			=> _x( 'Download', 'post type singular name', 'bulk-attachment-download' ),
+		'name'					=> _x( 'Downloads', 'noun', 'bulk-attachment-download' ),
+		'singular_name'			=> _x( 'Download', 'noun', 'bulk-attachment-download' ),
 		'add_new'				=> _x( 'Add New', 'download item', 'bulk-attachment-download' ),
 		'add_new_item'			=> __( 'Add New Download', 'bulk-attachment-download'),
 		'edit_item'				=> __( 'Edit Download', 'bulk-attachment-download' ),
@@ -661,7 +735,7 @@ function jabd_add_link_columns( $columns ) {
 		$new_columns[ $key ] = $column;
 		if ( 'title' == $key ) {
 			$new_columns['jabd_download_creator'] = __( 'Creator', 'bulk-attachment-download' );
-			$new_columns['jabd_download_button'] = __( 'Download', 'bulk-attachment-download' );
+			$new_columns['jabd_download_button'] = _x( 'Download', 'action', 'bulk-attachment-download' );
 		}
 	}
 	return $new_columns;
@@ -681,7 +755,7 @@ function jabd_add_link_columns_content( $column ) {
 			
 		case 'jabd_download_button' :
 		$disabled = ( 'trash' == $post->post_status || ! current_user_can( 'edit_post', $post->ID ) ) ? ' disabled' : '';
-			echo '<a href="'.get_post_permalink( $post->ID ).'"><button class="button button-primary button-large" type="button"'.$disabled. '>'.__( 'Download', 'bulk-attachment-download' ).'</button></a>';
+			echo '<a href="'.get_post_permalink( $post->ID ).'"><button class="button button-primary button-large" type="button"'.$disabled. '>'._x( 'Download', 'action', 'bulk-attachment-download' ).'</button></a>';
 			break;
 		
 	}

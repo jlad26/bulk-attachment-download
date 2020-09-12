@@ -88,6 +88,14 @@ but if you wanted to set the file size per user you could use this filter.
 
 == Changelog ==
 
+= 1.2.4 =
+
+Release date: 12 September 2020
+
+* Enhancement: Guidance added to Settings page and more notices added to help users.
+* Maintenance: Update Freemius SDK
+* Maintenance: Tidy up translation strings
+
 = 1.2.3 =
 
 Release date: 19 October 2017
