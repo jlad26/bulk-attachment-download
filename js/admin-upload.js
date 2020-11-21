@@ -108,11 +108,15 @@ jQuery(document).ready(function($) {
 	// Manage the download request
 	function processDownloadRequest() {
 
-		var attmtIds = getAttmtIds();
-		var downloadNonce = '';
-		var title = $( '.jabd-popup-msg input[type="text"]' ).val();
-		var intsizes = $( '#jabd-int-sizes-chkbox' ).prop( 'checked' );
-		var nofolders = $( '#jabd-no-folder-chkbox' ).prop( 'checked' );
+		var attmtIds = getAttmtIds(),
+			downloadNonce = '';
+			title = $( '.jabd-popup-msg input[type="text"]' ).val(),
+			pword = $( '.jabd-popup-msg #zipfile-password' ).val(),
+			intsizes = $( '#jabd-int-sizes-chkbox' ).prop( 'checked' ),
+			nofolders = $( '#jabd-no-folder-chkbox' ).prop( 'checked' );
+		if ( 'undefined' == typeof( pword) ) {
+			pword = '';
+		}
 
 		jQuery.ajax({
 			url : ajaxurl,
@@ -126,6 +130,7 @@ jQuery(document).ready(function($) {
 				downloadNonce	: jabd_downloader.download_nonce,
 				attmtIds		: attmtIds,
 				title			: title,
+				pword			: pword,
 				intsizes		: intsizes,
 				nofolders		: nofolders
 			},

@@ -250,7 +250,60 @@ function jabd_init_settings() {
 			'label_for'	=> 'jabd_no_folders',
 			'class'	=> 'jabd_row',
 		)
-    );
+	);
+	
+	if ( method_exists( 'ZipArchive', 'setEncryptionName' ) ) {
+	
+		add_settings_field(
+			'jabd_pwd_downloads',
+			__( 'Optional password protection', 'bulk-attachment-download' ),
+			'jabd_pwd_downloads_cb',
+			'media',
+			'jabd_settings_section',
+			array(
+				'label_for'	=> 'jabd_pwd_downloads',
+				'class'	=> 'jabd_row',
+			)
+		);
+
+		add_settings_field(
+			'jabd_default_pwd',
+			__( 'Default password', 'bulk-attachment-download' ),
+			'jabd_default_pwd',
+			'media',
+			'jabd_settings_section',
+			array(
+				'label_for'	=> 'jabd_default_pwd',
+				'class'	=> 'jabd_row',
+			)
+		);
+
+	} else {
+
+		add_settings_field(
+			'jabd_no_encryption',
+			__( 'Password protection options', 'bulk-attachment-download' ),
+			'jabd_no_encryption',
+			'media',
+			'jabd_settings_section',
+			array(
+				'class'	=> 'jabd_row',
+			)
+		);
+
+	}
+
+	add_settings_field(
+		'jabd_store_pwds',
+		__( 'Store & view passwords', 'bulk-attachment-download' ),
+		'jabd_store_pwds_cb',
+		'media',
+		'jabd_settings_section',
+		array(
+			'label_for'	=> 'jabd_store_pwds',
+			'class'	=> 'jabd_row',
+		)
+	);
 
 	add_settings_field(
 		'jabd_secure_downloads',
@@ -271,11 +324,11 @@ function jabd_init_settings() {
  */
 function jabd_guidance_section() {
 	
-	$output_html = '<div class="jabd-guidance-container"><h3><span class="hide-if-js">' . __( 'Guidance', 'bulk-attachment-download' ) . '</span>';
+	$output_html = '<div class="jabd-guidance-container"><h4><span class="hide-if-js">' . __( 'Guidance', 'bulk-attachment-download' ) . '</span>';
 	$output_html .= '<button type="button" class="hide-if-no-js jabd-link-button jabd-guidance-link">';
 	$output_html .= _x( 'Show Guidance', 'Display hidden content', 'bulk-attachment-download' ) . '&nbsp;&#9660</button>';
 	$output_html .= '<button type="button" class="hide-if-no-js jabd-link-button jabd-guidance-link" style="display: none">';
-	$output_html .= _x( 'Hide Guidance', 'Hide content', 'bulk-attachment-download' ) . '&nbsp;&#9650</button></h3>';
+	$output_html .= _x( 'Hide Guidance', 'Hide content', 'bulk-attachment-download' ) . '&nbsp;&#9650</button></h4>';
 	$guidance_html = '<p>' . __( 'To download attachments in bulk:' , 'bulk-attachment-download' ) . '</p>';
 	$guidance_html .= '<ol><li>' . sprintf(
 	/* translators: 1: Opening anchor tag 2: Closing anchor tag 3: Opening <strong> tag 4: Closing </strong> tag */
@@ -302,7 +355,7 @@ function jabd_guidance_section() {
 	$guidance_html .= '</ol><p>' . sprintf( __( 'Zip files and their corresponding %1$sDownload%2$s buttons are removed automatically 1-2 hours after their creation, so you don\'t have to worry about using up your server storage quota.', 'bulk-attachment-download' ),
 	'<strong>',
 	'</strong>' ) . '</p>';
-	$output_html .= '<div class="jabd-guidance hide-if-js">' . $guidance_html . '</div><h3>' . __( 'Settings' ) . '</h3></div>';
+	$output_html .= '<div class="jabd-guidance hide-if-js">' . $guidance_html . '</div></div>';
 	echo $output_html;
 	
 }
@@ -349,6 +402,55 @@ function jabd_single_folder_default_cb( $args ) {
 }
 
 /**
+ * Output the optional password settings field
+ */
+function jabd_pwd_downloads_cb( $args ) {
+	$options = get_option( 'jabd_options' );
+	$option = isset( $options['jabd_pwd_downloads'] ) ? $options['jabd_pwd_downloads'] : 0;
+	?>
+	<input style="margin-top: 6px" type="checkbox" name="jabd_options[<?php echo $args['label_for']; ?>]" id="<?php echo $args['label_for']; ?>" value="1" <?php checked( $option ); ?> />
+	<p class="description"><?php _e( 'Gives the option for a password to be set on the zip file when downloading. Note that password protected files are also encrypted using AES-256 and may not be openable using the standard Windows facility. Use 7-Zip instead.', 'bulk-attachment-download' ); ?></p>
+	<?php
+}
+
+/**
+ * Output the store passwords settings field
+ */
+function jabd_store_pwds_cb( $args ) {
+	$options = get_option( 'jabd_options' );
+	$option = isset( $options['jabd_store_pwds'] ) ? $options['jabd_store_pwds'] : 0;
+	$description = __( 'Whether to store passwords set on zip files. Stored passwords are displayed in the Downloads table.', 'bulk-attachment-download' );
+	if ( ! method_exists( 'ZipArchive', 'setEncryptionName' ) ) {
+		$description .= ' ' . __( 'This option is only available in case passwords have been stored in the past and you wish to enable or disable their display. Password protection is not available (see above).', 'bulk-attachment-download' );
+	}
+	?>
+	<input style="margin-top: 6px" type="checkbox" name="jabd_options[<?php echo $args['label_for']; ?>]" id="<?php echo $args['label_for']; ?>" value="1" <?php checked( $option ); ?> />
+	<p class="description"><?php echo $description; ?></p>
+	<?php
+}
+
+/**
+ * Output the default password settings field
+ */
+function jabd_default_pwd( $args ) {
+	$options = get_option( 'jabd_options' );
+	$option = isset( $options['jabd_default_pwd'] ) ? $options['jabd_default_pwd'] : '';
+	?>
+	<input type="text" size="20" name="jabd_options[<?php echo $args['label_for']; ?>]" id="<?php echo $args['label_for']; ?>" value="<?php esc_html_e( $options['jabd_default_pwd'] ); ?>" />
+	<p class="description"><?php _e( 'Set a default password that will be used on all zip files. If the option to choose a password at download is enabled, the default password can be overwritten then.', 'bulk-attachment-download' ); ?></p>
+	<?php
+}
+
+/**
+ * Output section explaining that password protection is not available
+ */
+function jabd_no_encryption( $args ) {
+	?>
+	<p class="description"><?php _e( 'Password protection options are not available, most likely because your server is running a version of PHP older than 7.2. The option to store and view passwords below remains active only in case passwords have been stored in the past.', 'bulk-attachment-download' ); ?></p>
+	<?php
+}
+
+/**
  * Output the secure download settings field
  */
 function jabd_secure_downloads_cb( $args ) {
@@ -379,6 +481,9 @@ function jabd_sanitize_options( $settings ) {
 					$options = get_option( 'jabd_options' );
 					$settings[$key] = isset( $options['jabd_max_size'] ) ? $options['jabd_max_size'] : 100;
 				}
+			
+			} elseif ( 'jabd_default_pwd' == $key ) {
+				$settings[$key] = sanitize_text_field( $setting );
 			} else {
 				$value = intval( $setting );
 				$settings[$key] = $value ? 1 : 0;
@@ -734,6 +839,9 @@ function jabd_add_link_columns( $columns ) {
 	foreach ( $columns as $key => $column ) {
 		$new_columns[ $key ] = $column;
 		if ( 'title' == $key ) {
+			if ( display_passwords() ) {
+				$new_columns['jabd_download_pword'] = __( 'Zipfile Password', 'bulk-attachment-download' );
+			}
 			$new_columns['jabd_download_creator'] = __( 'Creator', 'bulk-attachment-download' );
 			$new_columns['jabd_download_button'] = _x( 'Download', 'action', 'bulk-attachment-download' );
 		}
@@ -748,6 +856,11 @@ function jabd_add_link_columns_content( $column ) {
 	global $post;
 	switch ( $column ) {
 		
+		case 'jabd_download_pword' :
+			$pword = get_post_meta( $post->ID, 'jabd_pword', true );
+			echo esc_html($pword);
+			break;
+		
 		case 'jabd_download_creator' :
 			$user = get_user_by( 'id', $post->post_author );
 			echo esc_html($user->user_login);
@@ -759,6 +872,20 @@ function jabd_add_link_columns_content( $column ) {
 			break;
 		
 	}
+}
+
+/**
+ * Checks whether passwords are to be displayed in the Downloads table.
+ */
+function display_passwords() {
+	$options = get_option( 'jabd_options' );
+	$display_pwds = false;
+	if ( isset( $options['jabd_store_pwds'] ) ) {
+		if ( $options['jabd_store_pwds'] ) {
+			$display_pwds = true;
+		}
+	}
+	return apply_filters( 'jabd_display_pass_words', $display_pwds );
 }
 
 /**
@@ -1008,6 +1135,16 @@ function jabd_request_download() {
 	<span>'.__( 'Download title (optional)', 'bulk-attachment-download' ).'&nbsp;</span>
 	<input type="text" />
 </div>';
+
+					if ( isset( $settings['jabd_pwd_downloads'] ) ) {
+						if ( $settings['jabd_pwd_downloads'] ) {
+							$results_message .= '
+<div class="jabd-popup-msg">
+	<span>'.__( 'Password (optional)', 'bulk-attachment-download' ).'&nbsp;</span>
+	<input id="zipfile-password" type="text" />
+</div>';
+						}					
+					}
 				}
 
 				$results_message .=
@@ -1055,6 +1192,17 @@ function jabd_request_download() {
 				if ( $name_count > 0 ) {
 					$post_title .= $name_count;
 				}
+
+				// Get the zip password and set to default if necessary.
+				$zip_pword = sanitize_text_field( $_POST['pword'] );
+				if ( empty( $zip_pword ) ) {
+					if ( isset( $settings['jabd_default_pwd'] ) ) {
+						if ( ! empty( $settings['jabd_default_pwd'] ) ) {
+							$zip_pword = $settings['jabd_default_pwd'];
+						}
+					}
+				}
+				$zip_pword = apply_filters( 'jabd_zip_password', $zip_pword );
 				
 				// create the zip file
 				if ( class_exists( 'ZipArchive' ) ) {
@@ -1064,6 +1212,10 @@ function jabd_request_download() {
 					
 					if ( true === $zip_opened ) {
 					
+						if ( $zip_pword ) {
+							$zip->setPassword( $zip_pword );
+						}
+						
 						$upload_dir_info = wp_upload_dir();
 						
 						$added_rel_filepaths = array();
@@ -1086,7 +1238,7 @@ function jabd_request_download() {
 									
 								}
 								
-								$added_rel_filepaths = jabd_add_file_to_zip( $zip, $file_path, $relative_file_path, $added_rel_filepaths );
+								$added_rel_filepaths = jabd_add_file_to_zip( $zip, $file_path, $relative_file_path, $added_rel_filepaths, $zip_pword );
 
 							}
 							
@@ -1111,7 +1263,7 @@ function jabd_request_download() {
 												}
 											}
 											
-											$added_rel_filepaths = jabd_add_file_to_zip( $zip, $int_file_path, $int_rel_filepath, $added_rel_filepaths );
+											$added_rel_filepaths = jabd_add_file_to_zip( $zip, $int_file_path, $int_rel_filepath, $added_rel_filepaths, $zip_pword );
 
 										}
 									}
@@ -1127,14 +1279,21 @@ function jabd_request_download() {
 						
 							// create the download post
 							date_default_timezone_set( 'UTC' );
+
+							$meta_input = array(
+								'jabd_path'		=> addslashes( $rel_zip_path ),
+								'jabd_expiry'	=> date( 'Y-m-d H:i:s', strtotime( '+2 hours' ) )
+							);
+
+							if ( $zip_pword ) {
+								$meta_input['jabd_pword'] = $zip_pword;
+							}
+
 							$download_id = wp_insert_post( array(
 								'post_title'	=> $post_title,
 								'post_type'		=> 'jabd_download',
 								'post_status'	=> 'publish',
-								'meta_input'	=> array(
-									'jabd_path'		=> addslashes( $rel_zip_path ),
-									'jabd_expiry'	=> date( 'Y-m-d H:i:s', strtotime( '+2 hours' ) )
-								),
+								'meta_input'	=> $meta_input
 							) );
 							
 							$results_msg = '<div class="jabd-popup-msg"><span>'.__( 'Download created!', 'bulk-attachment-download' ).'</span></div>';
@@ -1187,7 +1346,7 @@ function jabd_request_download() {
 /**
  * Add file to zip making sure filename is unique
  */
-function jabd_add_file_to_zip( $zip, $file_path, $relative_file_path, $added_rel_filepaths ) {
+function jabd_add_file_to_zip( $zip, $file_path, $relative_file_path, $added_rel_filepaths, $zip_pword ) {
 	
 	// if there is another file with the same name in the zip file already then amend filename
 	$relative_file_path = jabd_unique_filepath_in_filepaths_array( $relative_file_path, $added_rel_filepaths );
@@ -1195,6 +1354,11 @@ function jabd_add_file_to_zip( $zip, $file_path, $relative_file_path, $added_rel
 	// add the file using the relative file path
 	if ( $zip->addFile( $file_path, $relative_file_path ) ) {
 		$added_rel_filepaths[] = $relative_file_path;
+		
+		// encrypt if password-protected
+		if ( $zip_pword ) {
+			$file_encrypted = $zip->setEncryptionName( $relative_file_path, ZipArchive::EM_AES_256 );
+		}
 	}
 	
 	return $added_rel_filepaths;
