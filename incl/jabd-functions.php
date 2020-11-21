@@ -842,6 +842,11 @@ function jabd_request_download() {
 
 	if ( empty( $permissions_errors ) and $valid_file_ids ) {
 		
+		// Compatibilty with Formidable Forms Pro
+		if ( class_exists( 'FrmProFileField' ) ) {
+			remove_action( 'pre_get_posts', 'FrmProFileField::filter_media_library', 99 );
+		}
+
 		// get posts and check they are attachments
 		$files_to_download = get_posts( array(
 			'posts_per_page'		=> -1,
@@ -849,6 +854,11 @@ function jabd_request_download() {
 			'post__in'				=> $_POST['attmtIds'],
 			'ignore_sticky_posts'	=> true
 		) );
+
+		// Compatibilty with Formidable Forms Pro
+		if ( class_exists( 'FrmProFileField' ) ) {
+			add_action( 'pre_get_posts', 'FrmProFileField::filter_media_library', 99 );
+		}
 		
 		if ( empty( $files_to_download ) ) {
 			$valid_file_ids = false;
