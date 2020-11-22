@@ -1018,6 +1018,11 @@ function jabd_request_download() {
 			//now create download if we are downloading
 			} elseif ( 'download' == $doaction && empty( $permissions_errors ) && $under_file_limit ) { //downloading
 				
+				// create downloads dir if necessary
+				if ( ! file_exists( JABD_PLUGIN_DIR.JABD_DOWNLOADS_DIR ) ) {
+					mkdir( JABD_PLUGIN_DIR.JABD_DOWNLOADS_DIR, 0755 );
+				}
+				
 				// create user folder if necessary
 				$user_id = get_current_user_id();
 				$zip_dir = JABD_PLUGIN_DIR.JABD_DOWNLOADS_DIR.'/'.$user_id;
