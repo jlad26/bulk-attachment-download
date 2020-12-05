@@ -28,6 +28,9 @@ By default, zip files are automatically removed in 1 - 2 hours, or you can delet
 If you want to keep the download files inaccessible to others, you can use the 'Make downloads secure' option in Settings > Media.
 This creates a .htaccess file in the folder where the download zip files are kept, preventing direct access.
 
+You can also choose to encrypt and password-protect the zip files. However please note that in most cases the standard Windows zip facility
+will not be able to open the files - you will need to use something like 7-Zip instead.
+
 However there's no point in using this feature or the .htaccess one unless you also have some means of preventing direct access to the attachments
 themselves in the Uploads folder.
 
@@ -74,6 +77,10 @@ That means that if the Wordpress default roles and capabilities are being used:
 * Administrators and editors can download any attachments.
 * Authors and contributors can download only those attachments they uploaded.
 * Only administrators can download, edit or delete a download created by another user.
+
+= Why can't I open the password-protected zip files? =
+
+Probably because you are using the standard Windows zip facility, which will not work. Try 7-Zip instead.
 
 = What filters are available? =
 
