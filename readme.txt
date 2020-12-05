@@ -101,7 +101,7 @@ but if you wanted to set the file size per user you could use this filter.
 Release date: 6 December 2020
 
 * Enhancement: Add option to disable auto-deletion of downloads.
-* Enhancement: Add option to encrypt and password-protect zip files. props to @vfontjr
+* Enhancement: Add option to encrypt and password-protect zip files. props to [@Victor](https://github.com/vfontjr), [@Walter](http://www.joneswebdesigns.com)
 * Maintenance: Change zip files location to within Uploads directory
 * Maintenance: Update Freemius SDK
 * Bug fix: Make compatibile with Formidable Forms Pro
