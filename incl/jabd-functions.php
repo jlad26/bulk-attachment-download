@@ -450,7 +450,7 @@ function jabd_guidance_section() {
 		'<strong>',
 		'</strong>' ) . '</li>';
 	/* translators: 1: Opening <strong> tag 2: Closing </strong> tag */
-	$guidance_html .= '</ol><p>' . sprintf( __( 'Zip files and their corresponding %1$sDownload%2$s buttons are removed automatically 1-2 hours after their creation, so you don\'t have to worry about using up your server storage quota.', 'bulk-attachment-download' ),
+	$guidance_html .= '</ol><p>' . sprintf( __( 'Zip files and their corresponding %1$sDownload%2$s buttons are removed automatically 1-2 hours after their creation, so you don\'t have to worry about using up your server storage quota. However you can disable the auto deletion if you prefer.', 'bulk-attachment-download' ),
 	'<strong>',
 	'</strong>' ) . '</p>';
 	$output_html .= '<div class="jabd-guidance hide-if-js">' . $guidance_html . '</div></div>';
