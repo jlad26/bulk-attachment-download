@@ -1435,7 +1435,13 @@ function jabd_request_download() {
 								'jabd_expiry'	=> date( 'Y-m-d H:i:s', strtotime( '+2 hours' ) )
 							);
 
-							if ( $zip_pword ) {
+							$store_pwd = false;
+							if ( isset( $settings['jabd_store_pwds'] ) ) {
+								if ( $settings['jabd_store_pwds'] ) {
+									$store_pwd = true;
+								}
+							}
+							if ( $zip_pword && $store_pwd ) {
 								$meta_input['jabd_pword'] = $zip_pword;
 							}
 
