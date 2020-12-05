@@ -90,7 +90,17 @@ function jabd_on_activation() {
 	check_admin_referer( 'activate-plugin_' . $plugin );
 	
 	// add hourly cron event used to delete expired downloads
-	wp_schedule_event( time(), 'hourly', 'jabd_hourly_event' );
+	$options = get_option( 'jabd_options' );
+	$auto_delete = true;
+	if ( isset( $options['jabd_disable_auto_delete'] ) ) {
+		if ( $options['jabd_disable_auto_delete'] ) {
+			$auto_delete = false;
+		}
+	}
+	
+	if ( $auto_delete ) {
+		wp_schedule_event( time(), 'hourly', 'jabd_hourly_event' );
+	}
 	
 	// register our custom post type and flush rewrite rules
 	jabd_register_download_post_type();
@@ -109,7 +119,7 @@ function jabd_on_deactivation() {
 
 	$plugin = isset( $_REQUEST['plugin'] ) ? $_REQUEST['plugin'] : '';
 	check_admin_referer( 'deactivate-plugin_' . $plugin );
-	
+
 	// remove hourly event
 	wp_clear_scheduled_hook( 'jabd_hourly_event' );
 	
@@ -315,6 +325,18 @@ function jabd_init_settings() {
 			'class'	=> 'jabd_row',
 		)
 	);
+
+	add_settings_field(
+		'jabd_disable_auto_delete',
+		__( 'Disable auto deletion', 'bulk-attachment-download' ),
+		'jabd_disable_auto_delete_cb',
+		'media',
+		'jabd_settings_section',
+		array(
+			'label_for'	=> 'jabd_disable_auto_delete',
+			'class'	=> 'jabd_row',
+		)
+	);
 	
 	if ( method_exists( 'ZipArchive', 'setEncryptionName' ) ) {
 	
@@ -466,6 +488,18 @@ function jabd_single_folder_default_cb( $args ) {
 }
 
 /**
+ * Output the disable auto deletion settings field
+ */
+function jabd_disable_auto_delete_cb( $args ) {
+	$options = get_option( 'jabd_options' );
+	$option = isset( $options['jabd_disable_auto_delete'] ) ? $options['jabd_disable_auto_delete'] : 0;
+	?>
+	<input style="margin-top: 6px" type="checkbox" name="jabd_options[<?php echo $args['label_for']; ?>]" id="<?php echo $args['label_for']; ?>" value="1" <?php checked( $option ); ?> />
+	<p class="description"><?php _e( 'Disables the automatic deletion of downloads (which are otherwise deleted 1 - 2 hours after being created).', 'bulk-attachment-download' ); ?></p>
+	<?php
+}
+
+/**
  * Output the optional password settings field
  */
 function jabd_pwd_downloads_cb( $args ) {
@@ -559,7 +593,8 @@ function jabd_sanitize_options( $settings ) {
 }
 
 /**
- * Add / remove htaccess file as necessary when "Make downloads secure" option is updated
+ * Add / remove htaccess file as necessary when "Make downloads secure" option is updated, and
+ * Add/ remove automatic cron event for deletion of downloads
  * @hooked pre_update_option_jabd_options
  */
 function jabd_before_options_update( $value, $old_value, $option ) {
@@ -570,15 +605,29 @@ function jabd_before_options_update( $value, $old_value, $option ) {
 	
 	if ( current_user_can('manage_options') ) { // make sure user is administrator
 		
-		$old_setting = isset( $old_value['jabd_secure_downloads'] ) ? $old_value['jabd_secure_downloads'] : '';
-		$new_setting = isset( $value['jabd_secure_downloads'] ) ? $value['jabd_secure_downloads'] : '';
+		// Handle change of .htaccess setting.
+		$old_htaccess_setting = isset( $old_value['jabd_secure_downloads'] ) ? $old_value['jabd_secure_downloads'] : '';
+		$new_htaccess_setting = isset( $value['jabd_secure_downloads'] ) ? $value['jabd_secure_downloads'] : '';
 		
-		if ( $old_setting != $new_setting ) { // if the option has been changed
+		if ( $old_htaccess_setting != $new_htaccess_setting ) { // if the option has been changed
 
-			if ( $new_setting ) { // if we need a .htaccess file
+			if ( $new_htaccess_setting ) { // if we need a .htaccess file
 				$value = jabd_create_htaccess( $value, $old_value );
 			} else { // we are removing the .htaccess file
 				$value = jabd_remove_htaccess( $value, $old_value );
+			}
+		}
+
+		// Handle change of automatic delete setting.
+		$old_auto_delete_setting = isset( $old_value['jabd_disable_auto_delete'] ) ? $old_value['jabd_disable_auto_delete'] : '';
+		$new_auto_delete_setting = isset( $value['jabd_disable_auto_delete'] ) ? $value['jabd_disable_auto_delete'] : '';
+		
+		if ( $old_auto_delete_setting != $new_auto_delete_setting ) { // if the option has been changed
+
+			if ( $new_auto_delete_setting ) { // if we need to disable auto deletion
+				wp_clear_scheduled_hook( 'jabd_hourly_event' );
+			} else { // we are enabling auto deletion
+				wp_schedule_event( time(), 'hourly', 'jabd_hourly_event' );
 			}
 		}
 		
