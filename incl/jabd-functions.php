@@ -401,6 +401,18 @@ function jabd_init_settings() {
 			'label_for'	=> 'jabd_secure_downloads',
 			'class'	=> 'jabd_row',
 		)
+	);
+	
+	add_settings_field(
+		'jabd_delete_on_uninstall',
+		__( 'Delete on uninstall', 'bulk-attachment-download' ),
+		'jabd_delete_on_uninstall_cb',
+		'media',
+		'jabd_settings_section',
+		array(
+			'label_for'	=> 'jabd_delete_on_uninstall',
+			'class'	=> 'jabd_row',
+		)
     );
 
 }
@@ -557,6 +569,18 @@ function jabd_secure_downloads_cb( $args ) {
 	?>
 	<input style="margin-top: 6px" type="checkbox" name="jabd_options[<?php echo $args['label_for']; ?>]" id="<?php echo $args['label_for']; ?>" value="1" <?php checked( $option ); ?> />
 	<p class="description"><?php _e( 'Choose whether or not to prevent others accessing downloads while they are (temporarily) stored on the server. There\'s no point doing this unless you are somehow also protecting access to the files in your Uploads folder.', 'bulk-attachment-download' ); ?></p>
+	<?php
+}
+
+/**
+ * Output the delete on uninstall settings field
+ */
+function jabd_delete_on_uninstall_cb( $args ) {
+	$options = get_option( 'jabd_options' );
+	$option = isset( $options['jabd_delete_on_uninstall'] ) ? $options['jabd_delete_on_uninstall'] : 0;
+	?>
+	<input style="margin-top: 6px" type="checkbox" name="jabd_options[<?php echo $args['label_for']; ?>]" id="<?php echo $args['label_for']; ?>" value="1" <?php checked( $option ); ?> />
+	<p class="description"><?php _e( 'Choose whether to delete any existing zip files when uninstalling the plugin.', 'bulk-attachment-download' ); ?></p>
 	<?php
 }
 

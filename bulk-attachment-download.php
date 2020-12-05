@@ -93,12 +93,25 @@ function jabd_fs_uninstall_cleanup() {
 		return;
 	}
 
-    // delete all downloads
-    jabd_delete_download_posts( $only_expired = false );
+    $options = get_option( 'jabd_options' );
+    $delete = false;
+    if ( isset( $options['jabd_delete_on_uninstall'] ) ) {
+        if ( $options['jabd_delete_on_uninstall'] ) {
+            $delete = true;
+        }
+    }
+    
+    if ( $delete ) {
+    
+        // delete all downloads
+        jabd_delete_download_posts( $only_expired = false );
 
-    // delete downloads folder
-    $uploads_dir_info = wp_upload_dir();
-    @rmdir( $uploads_dir_info['basedir'] . '/'.JABD_DOWNLOADS_DIR );
+        // delete .htaccess (if it exists) and downloads folder
+        jabd_remove_htaccess( 1, 1 );
+        $uploads_dir_info = wp_upload_dir();
+        @rmdir( $uploads_dir_info['basedir'] . '/'.JABD_DOWNLOADS_DIR );
+
+    }
 
 	// remove deprecated options and usermeta
 	delete_option( 'jabd_notices' );
