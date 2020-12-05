@@ -176,6 +176,15 @@ function jabd_on_plugin_upgrade( $prev_version ) {
 	// Delete any hangover posts after moving downloads to uploads folder.
 	if (  1 == version_compare( '1.3.0', $prev_version ) ) {
 		jabd_delete_download_posts( $only_expired = false );
+
+		// recreate .htaccess file if needed.
+		$options = get_option( 'jabd_options' );
+		if ( isset(  $options['jabd_secure_downloads'] ) ) {
+			if ( $options['jabd_secure_downloads'] ) {
+				jabd_create_htaccess( 1, 1 );
+			}
+		}
+
 	}
 	
 }
@@ -555,69 +564,106 @@ function jabd_sanitize_options( $settings ) {
  */
 function jabd_before_options_update( $value, $old_value, $option ) {
 
+	if ( 'jabd_options' != $option ) {
+		return false;
+	}
+	
 	if ( current_user_can('manage_options') ) { // make sure user is administrator
 		
 		$old_setting = isset( $old_value['jabd_secure_downloads'] ) ? $old_value['jabd_secure_downloads'] : '';
 		$new_setting = isset( $value['jabd_secure_downloads'] ) ? $value['jabd_secure_downloads'] : '';
 		
 		if ( $old_setting != $new_setting ) { // if the option has been changed
-			
-			$htaccess_path = JABD_UPLOADS_DIR.JABD_DOWNLOADS_DIR.'/.htaccess';
-			
+
 			if ( $new_setting ) { // if we need a .htaccess file
-				
-				// create / over-write htaccess file
-				$htaccess = @fopen($htaccess_path, 'w');
-				if ( ! $htaccess ) {
-					$args = array(
-						'id'		=>	'no_htaccess_update',
-						'message'	=>	__( 'Bulk downloads settings have not been updated. The .htaccess file preventing direct access to your downloads could not be created. This may be an issue with the way permissions are set on your server.', 'bulk-attachment-download' ),
-						'screen_ids'	=>	array( 'options-media' )
-					);
-					Bulk_Attachment_Download_Admin_Notice_Manager::add_notice( $args );
-					$value = $old_value; // reset the options to old value to prevent update
-				} else {
-					fwrite( $htaccess, "Order Deny,Allow\nDeny from all" );
-					fclose( $htaccess );
-					if ( ! @chmod( $htaccess_path, 0644 ) ) { // set permissions and give warning if permissions cannot be set
-						$disp_htaccess_path = str_replace( '\\', '/', str_replace( trim( ABSPATH, '/' ), '', JABD_UPLOADS_DIR.JABD_DOWNLOADS_DIR.'/.htaccess' ) );
-						$args = array(
-							'id'			=>	'htaccess_permissions_error',
-							/* translators: Filepath to .htaccess file */
-							'message'		=>	JABD_PLUGIN_NAME . ': '. sprintf( __( 'The .htaccess file has been created to prevent access to downloads. However the plugin could not confirm that permissions have been correctly set on the .htaccess file itself, which is a security risk. Please confirm that permissions on the file have been set to 0644 - it can be found at %s.', 'bulk-attachment-download' ), $disp_htaccess_path ),
-							'type'			=>	'warning',
-							'screen_ids'	=>	array( 'options-media' ),
-							'persistent'	=>	true,
-						);
-						Bulk_Attachment_Download_Admin_Notice_Manager::add_notice( $args );
-					} else {
-						Bulk_Attachment_Download_Admin_Notice_Manager::delete_added_notice_from_all_users( 'htaccess_permissions_error' );
-					}
-				}
-			
+				$value = jabd_create_htaccess( $value, $old_value );
 			} else { // we are removing the .htaccess file
-				if ( file_exists( $htaccess_path ) ) {
-					if ( ! @unlink( $htaccess_path ) ) {
-						$disp_htaccess_path = str_replace( '\\', '/', str_replace( trim( ABSPATH, '/' ), '', $htaccess_path ) );
-						$args = array(
-							'id'		=>	'no_htaccess_delete',
-							/* translators: Filepath to .htaccess file */
-							'message'	=>	JABD_PLUGIN_NAME . ': ' . sprintf( __( 'The .htaccess file preventing direct access to your downloads could not be deleted. Please delete the file manually and then unset the Make downloads secure setting again. The file can be found at %s. Alternatively you may uninstall and re-install the plugin.', 'bulk-attachment-download' ), $disp_htaccess_path ),
-							'screen_ids'	=>	array( 'options-media' ),
-							'persistent'		=>	true
-						);
-						Bulk_Attachment_Download_Admin_Notice_Manager::add_notice( $args );
-						$value = $old_value; // reset the options to old value to prevent update
-					}
-				} else {
-					Bulk_Attachment_Download_Admin_Notice_Manager::delete_added_notice_from_all_users( 'no_htaccess_delete' );
-				}
+				$value = jabd_remove_htaccess( $value, $old_value );
 			}
 		}
 		
 	}
 	
 	return $value;
+}
+
+/**
+ * Create / overwrite .htaccess file.
+ * @param	int		$value		new setting value
+ * @param	int		$old_value	old setting value
+ * @return	int		returns value set to old value if failure
+ */
+function jabd_create_htaccess( $value, $old_value ) {
+
+	// create downloads dir if necessary
+	if ( ! file_exists( JABD_UPLOADS_DIR.JABD_DOWNLOADS_DIR ) ) {
+		mkdir( JABD_UPLOADS_DIR.JABD_DOWNLOADS_DIR, 0755 );
+	}
+	
+	$htaccess_path = JABD_UPLOADS_DIR.JABD_DOWNLOADS_DIR.'/.htaccess';
+			
+	// create / over-write htaccess file
+	$htaccess = @fopen($htaccess_path, 'w');
+	if ( ! $htaccess ) {
+		$args = array(
+			'id'		=>	'no_htaccess_update',
+			'message'	=>	__( 'Bulk downloads settings have not been updated. The .htaccess file preventing direct access to your downloads could not be created. This may be an issue with the way permissions are set on your server.', 'bulk-attachment-download' ),
+			'screen_ids'	=>	array( 'options-media' )
+		);
+		Bulk_Attachment_Download_Admin_Notice_Manager::add_notice( $args );
+		$value = $old_value; // reset the options to old value to prevent update
+	} else {
+		fwrite( $htaccess, "Order Deny,Allow\nDeny from all" );
+		fclose( $htaccess );
+		if ( ! @chmod( $htaccess_path, 0644 ) ) { // set permissions and give warning if permissions cannot be set
+			$disp_htaccess_path = str_replace( '\\', '/', str_replace( trim( ABSPATH, '/' ), '', JABD_UPLOADS_DIR.JABD_DOWNLOADS_DIR.'/.htaccess' ) );
+			$args = array(
+				'id'			=>	'htaccess_permissions_error',
+				/* translators: Filepath to .htaccess file */
+				'message'		=>	JABD_PLUGIN_NAME . ': '. sprintf( __( 'The .htaccess file has been created to prevent access to downloads. However the plugin could not confirm that permissions have been correctly set on the .htaccess file itself, which is a security risk. Please confirm that permissions on the file have been set to 0644 - it can be found at %s.', 'bulk-attachment-download' ), $disp_htaccess_path ),
+				'type'			=>	'warning',
+				'screen_ids'	=>	array( 'options-media' ),
+				'persistent'	=>	true,
+			);
+			Bulk_Attachment_Download_Admin_Notice_Manager::add_notice( $args );
+		} else {
+			Bulk_Attachment_Download_Admin_Notice_Manager::delete_added_notice_from_all_users( 'htaccess_permissions_error' );
+		}
+	}
+
+	return $value;
+	
+}
+
+/**
+ * Remove .htaccess file.
+ * @param	int		$value		new setting value
+ * @param	int		$old_value	old setting value
+ * @return	int		returns value set to old value if failure
+ */
+function jabd_remove_htaccess( $value, $old_value ) {
+
+	$htaccess_path = JABD_UPLOADS_DIR.JABD_DOWNLOADS_DIR.'/.htaccess';
+				
+	if ( file_exists( $htaccess_path ) ) {
+		if ( ! @unlink( $htaccess_path ) ) {
+			$disp_htaccess_path = str_replace( '\\', '/', str_replace( trim( ABSPATH, '/' ), '', $htaccess_path ) );
+			$args = array(
+				'id'		=>	'no_htaccess_delete',
+				/* translators: Filepath to .htaccess file */
+				'message'	=>	JABD_PLUGIN_NAME . ': ' . sprintf( __( 'The .htaccess file preventing direct access to your downloads could not be deleted. Please delete the file manually and then unset the Make downloads secure setting again. The file can be found at %s. Alternatively you may uninstall and re-install the plugin.', 'bulk-attachment-download' ), $disp_htaccess_path ),
+				'screen_ids'	=>	array( 'options-media' ),
+				'persistent'		=>	true
+			);
+			Bulk_Attachment_Download_Admin_Notice_Manager::add_notice( $args );
+			$value = $old_value; // reset the options to old value to prevent update
+		}
+	} else {
+		Bulk_Attachment_Download_Admin_Notice_Manager::delete_added_notice_from_all_users( 'no_htaccess_delete' );
+	}
+
+	return $value;
+
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
