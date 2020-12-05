@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 global $post;
 if ( current_user_can( 'edit_post', $post->ID ) ) {
 	
-	$file_path = JABD_PLUGIN_DIR.JABD_DOWNLOADS_DIR.'/'.get_post_meta( $post->ID, 'jabd_path', true );
+	$file_path = JABD_UPLOADS_DIR.JABD_DOWNLOADS_DIR.'/'.get_post_meta( $post->ID, 'jabd_path', true );
 	if( file_exists( $file_path ) ) {
 		header( 'Content-type: application/zip' );
 		header( 'Content-Disposition: attachment; filename="'.wp_basename( $file_path ).'"' );

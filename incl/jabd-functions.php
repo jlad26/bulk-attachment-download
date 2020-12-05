@@ -27,6 +27,11 @@ function jabd_admin_enqueue_scripts( $hook ) {
 	
 	if ( 'upload.php' == $hook ) { //if we are on media library
 		
+		// Don't allow downloading if we can't work with uploads dir.
+		if ( ! defined( 'JABD_UPLOADS_DIR' ) ) {
+			return false;
+		}
+		
 		// JS for handling download creation on Media library
 		wp_enqueue_script( 'jabd-admin-upload-js', JABD_PLUGIN_BASE_URL.'js/admin-upload.js', array( 'jquery' ), '1.0.0' );
 
@@ -114,7 +119,16 @@ function jabd_on_deactivation() {
  * Delete expired download posts.
  * @hooked jabd_hourly_event
  */
-function jabd_delete_download_posts() {
+function jabd_delete_expired_download_posts() {
+	jabd_delete_download_posts( $only_expired = true );
+}
+add_action( 'jabd_hourly_event', 'jabd_delete_expired_download_posts' );
+
+/**
+ * Delete download posts.
+ * @param	bool	$only_expired	whether to delete only expired downloads
+ */
+function jabd_delete_download_posts( $only_expired = true ) {
 	$download_posts = get_posts( array(
 		'post_type'			=> 'jabd_download',
 		'posts_per_page'	=> -1,
@@ -124,17 +138,16 @@ function jabd_delete_download_posts() {
 		date_default_timezone_set('UTC');
 		$now = time();
 		foreach( $download_posts as $download_post ) {
-			if ( strtotime( get_post_meta( $download_post->ID, 'jabd_expiry', true ) ) < $now ) {
-				$zip_path = get_post_meta( $download_post->ID, 'jabd_path', true );
-				if ( file_exists( $zip_path ) ) {
-					@unlink($zip_path);
+			if ( $only_expired ) {
+				if ( strtotime( get_post_meta( $download_post->ID, 'jabd_expiry', true ) ) > $now ) {
+					continue;
 				}
-				wp_delete_post( $download_post->ID, true );
 			}
+			jabd_delete_download_zip( $download_post->ID );
+			wp_delete_post( $download_post->ID, true );
 		}
 	}
 }
-add_action( 'jabd_hourly_event', 'jabd_delete_download_posts' );
 
 /**
  * Run processes on upgrade and installation.
@@ -193,6 +206,44 @@ function jabd_on_plugin_installation() {
 	);
 	Bulk_Attachment_Download_Admin_Notice_Manager::add_notice( $notice_args );
 	
+}
+
+/*---------------------------------------------------------------------------------------------------------*/
+/*Define uploads folder*/
+
+/**
+ * Define uploads dir.
+ */
+function jabd_define_uploads_folder() {
+	$uploads_dir_info = wp_upload_dir();
+	if ( $uploads_dir_info['error'] ) {
+		add_action( 'admin_init', 'jabd_upload_dir_error_notice' );
+	} else {
+		define( 'JABD_UPLOADS_DIR', $uploads_dir_info['basedir'] . '/' );
+	}
+}
+
+/**
+ * Set an error message that uploads dir is inaccessible.
+ */
+function jabd_upload_dir_error_notice() {
+	$uploads_dir_info = wp_upload_dir();
+	$message = '<strong>' . __( 'Error', 'bulk-attachment-download' ) . ':</strong> ';
+	/* translators: Plugin name */
+	$message .= sprintf(
+		__( '%s was unable to access your uploads folder in order to create a Downloads folder. The plugin cannot function unless the error is resolved. The error message is:', 'bulk-attachment-download' ) . '<br />',
+		JABD_PLUGIN_NAME
+	);
+	$message .= $uploads_dir_info['errpr'];
+	$notice = array(
+		'message'		=>	$message,
+		'user_ids'		=>	array( 'administrator' ),
+		'type'			=>	'error',
+		'screen_ids'	=>	array( 'upload' ),
+		'persistent'	=>	true,
+		'dismissable'	=>	false
+	);
+	Bulk_Attachment_Download_Admin_Notice_Manager::add_opt_out_notice( $notice );
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
@@ -507,7 +558,7 @@ function jabd_before_options_update( $value, $old_value, $option ) {
 		
 		if ( $old_setting != $new_setting ) { // if the option has been changed
 			
-			$htaccess_path = JABD_PLUGIN_DIR.JABD_DOWNLOADS_DIR.'/.htaccess';
+			$htaccess_path = JABD_UPLOADS_DIR.JABD_DOWNLOADS_DIR.'/.htaccess';
 			
 			if ( $new_setting ) { // if we need a .htaccess file
 				
@@ -525,7 +576,7 @@ function jabd_before_options_update( $value, $old_value, $option ) {
 					fwrite( $htaccess, "Order Deny,Allow\nDeny from all" );
 					fclose( $htaccess );
 					if ( ! @chmod( $htaccess_path, 0644 ) ) { // set permissions and give warning if permissions cannot be set
-						$disp_htaccess_path = str_replace( '\\', '/', str_replace( trim( ABSPATH, '/' ), '', JABD_PLUGIN_DIR.JABD_DOWNLOADS_DIR.'/.htaccess' ) );
+						$disp_htaccess_path = str_replace( '\\', '/', str_replace( trim( ABSPATH, '/' ), '', JABD_UPLOADS_DIR.JABD_DOWNLOADS_DIR.'/.htaccess' ) );
 						$args = array(
 							'id'			=>	'htaccess_permissions_error',
 							/* translators: Filepath to .htaccess file */
@@ -1156,13 +1207,13 @@ function jabd_request_download() {
 			} elseif ( 'download' == $doaction && empty( $permissions_errors ) && $under_file_limit ) { //downloading
 				
 				// create downloads dir if necessary
-				if ( ! file_exists( JABD_PLUGIN_DIR.JABD_DOWNLOADS_DIR ) ) {
-					mkdir( JABD_PLUGIN_DIR.JABD_DOWNLOADS_DIR, 0755 );
+				if ( ! file_exists( JABD_UPLOADS_DIR.JABD_DOWNLOADS_DIR ) ) {
+					mkdir( JABD_UPLOADS_DIR.JABD_DOWNLOADS_DIR, 0755 );
 				}
 				
 				// create user folder if necessary
 				$user_id = get_current_user_id();
-				$zip_dir = JABD_PLUGIN_DIR.JABD_DOWNLOADS_DIR.'/'.$user_id;
+				$zip_dir = JABD_UPLOADS_DIR.JABD_DOWNLOADS_DIR.'/'.$user_id;
 				if ( ! file_exists( $zip_dir ) ) {
 					mkdir( $zip_dir, 0755 );
 				}
@@ -1188,7 +1239,7 @@ function jabd_request_download() {
 					$name_count++;
 				}
 				$rel_zip_path = $user_id.'/'.$zip_name.( $name_count > 0 ? $name_count : '' ).'.zip';
-				$zip_path = JABD_PLUGIN_DIR.JABD_DOWNLOADS_DIR.'/'.$rel_zip_path;
+				$zip_path = JABD_UPLOADS_DIR.JABD_DOWNLOADS_DIR.'/'.$rel_zip_path;
 				if ( $name_count > 0 ) {
 					$post_title .= $name_count;
 				}
@@ -1376,7 +1427,7 @@ function jabd_close_popup_btn( $btn_text ) {
  * Delete zip file on deletion of download post by user
  */
 function jabd_delete_download_zip( $post_id ) {
-	if ( $zip_path = JABD_PLUGIN_DIR.JABD_DOWNLOADS_DIR.'/'.get_post_meta( $post_id, 'jabd_path', true ) ) {
+	if ( $zip_path = JABD_UPLOADS_DIR.JABD_DOWNLOADS_DIR.'/'.get_post_meta( $post_id, 'jabd_path', true ) ) {
 		if ( file_exists( $zip_path ) ) {
 			@unlink( $zip_path );
 		}

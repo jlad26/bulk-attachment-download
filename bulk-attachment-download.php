@@ -21,15 +21,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 /*---------------------------------------------------------------------------------------------------------*/
 /*Setup*/
 
-//define constants
+// define constants
 if ( ! defined( 'JABD_PLUGIN_NAME' ) ) define( 'JABD_PLUGIN_NAME', 'Bulk Attachment Download' );
 if ( ! defined( 'JABD_PLUGIN_DIR' ) ) define( 'JABD_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 if ( ! defined( 'JABD_PLUGIN_BASE_URL' ) ) define( 'JABD_PLUGIN_BASE_URL', plugin_dir_url( __FILE__ ) );
 if ( ! defined( 'JABD_DOWNLOADS_DIR' ) ) define( 'JABD_DOWNLOADS_DIR', 'jabd-downloads' );
 if ( ! defined( 'JABD_VERSION' ) ) define( 'JABD_VERSION', '1.2.4' );
 
-//include functions
+// include functions
 require_once JABD_PLUGIN_DIR.'incl/jabd-functions.php';
+
+// define uploads constant here so that it's available for uninstall process
+jabd_define_uploads_folder();
 
 //include admin notice manager class and initialize
 require_once JABD_PLUGIN_DIR.'incl/admin-notice-manager/class-admin-notice-manager.php';
@@ -40,7 +43,7 @@ Bulk_Attachment_Download_Admin_Notice_Manager::init( array(
 	'version'			=>	JABD_VERSION
 ) );
 
-//internationalization
+// internationalization
 add_action( 'plugins_loaded', 'jabd_load_plugin_textdomain' );
 
 /*--------------------------------------------------------------------------------------------------*/
@@ -90,16 +93,12 @@ function jabd_fs_uninstall_cleanup() {
 		return;
 	}
 
-	// delete any downloads
-	$download_posts = get_posts( array(
-		'post_type'			=> 'jabd_download',
-		'posts_per_page'	=> -1
-	) );
-	if ( !empty( $download_posts ) ) {
-		foreach ( $download_posts as $download_post ) {
-			wp_delete_post( $download_post->ID, true );
-		}
-	}
+    // delete all downloads
+    jabd_delete_download_posts( $only_expired = false );
+
+    // delete downloads folder
+    $uploads_dir_info = wp_upload_dir();
+    @rmdir( $uploads_dir_info['basedir'] . '/'.JABD_DOWNLOADS_DIR );
 
 	// remove deprecated options and usermeta
 	delete_option( 'jabd_notices' );
