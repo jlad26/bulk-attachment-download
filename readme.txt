@@ -16,19 +16,20 @@ A 'Download' option is added to the 'Bulk Actions' dropdown in the Media Library
 Choose the attachments you want to export, click 'Apply', and a zip file of those attachments is created that you can then download.
 
 Before the zip file is created, you'll see a) how many files will be downloaded, and b) how big the uncompressed files are.
-You are also given the option to:
+By default, you are also given the option to:
 
 * Include or exclude image intermediate sizes.
 * Include in your download the folder structure you use in your uploads folder (e.g. year/month) or have all files downloaded in a single folder.
 
 You can set a maximum (uncompressed) file size to be downloaded in the plugin settings, found in Settings > Media.
 
-Zip files are automatically removed in 1 - 2 hours, or you can delete them yourself.
+By default, zip files are automatically removed in 1 - 2 hours, or you can delete them yourself.
 
 If you want to keep the download files inaccessible to others, you can use the 'Make downloads secure' option in Settings > Media.
 This creates a .htaccess file in the folder where the download zip files are kept, preventing direct access.
-However there's no point in using this feature unless you also have some means of preventing direct access to the attachments themselves
-in the Uploads folder.
+
+However there's no point in using this feature or the .htaccess one unless you also have some means of preventing direct access to the attachments
+themselves in the Uploads folder.
 
 
 == Installation ==
@@ -87,6 +88,16 @@ but if you wanted to set the file size per user you could use this filter.
 
 
 == Changelog ==
+
+= 1.3.0 =
+
+Release date: 6 December 2020
+
+* Enhancement: Add option to disable auto-deletion of downloads.
+* Enhancement: Add option to encrypt and password-protect zip files. props to @vfontjr
+* Maintenance: Change zip files location to within Uploads directory
+* Maintenance: Update Freemius SDK
+* Bug fix: Make compatibile with Formidable Forms Pro
 
 = 1.2.4 =
 

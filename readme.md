@@ -9,19 +9,20 @@ A 'Download' option is added to the 'Bulk Actions' dropdown in the Media Library
 Choose the attachments you want to export, click 'Apply', and a zip file of those attachments is created that you can then download.
 
 Before the zip file is created, you'll see a) how many files will be downloaded, and b) how big the uncompressed files are.
-You are also given the option to:
+By default, you are also given the option to:
 
 * Include or exclude image intermediate sizes.
 * Include in your download the folder structure you use in your uploads folder (e.g. year/month) or have all files downloaded in a single folder.
 
 You can set a maximum (uncompressed) file size to be downloaded in the plugin settings, found in Settings > Media.
 
-Zip files are automatically removed in 1 - 2 hours, or you can delete them yourself.
+By default, aip files are automatically removed in 1 - 2 hours, or you can delete them yourself. However you can also disable the auto deletion if you prefer.
 
-If you want to keep the download files inaccessible to others, you can use the 'Make downloads secure' option in Settings > Media.
-This creates a .htaccess file in the folder where the download zip files are kept, preventing direct access.
-However there's no point in using this feature unless you also have some means of preventing direct access to the attachments themselves
-in the Uploads folder.
+If you want to keep the download files inaccessible to others, you can use the 'Make downloads secure' option in Settings > Media. This creates a .htaccess file in the folder where the download zip files are kept, preventing direct access.
+
+You can also choose to encrypt and password-protect the zip files.
+
+However there's no point in using this feature or the .htaccess one unless you also have some means of preventing direct access to the attachments themselves in the Uploads folder.
 
 
 ## Installation
@@ -46,14 +47,11 @@ and increase the 'Number of items per page'.
 ### What's the maximum number of attachments I can download at once?
 
 It depends. The theoretical absolute maximum is 999. That's the maximum you can set for 'Number of items per page' in the Media Library (see above).
-But there may be other constraints depending on your host setup, such as max script execution time, file size limits and memory limits.
-Whether you reach those constraints will depend on the number and size of files you are trying to download in one go.
-If you see error messages or your zip file is incomplete or corrupted, try several smaller downloads instead of one big one.
+But there may be other constraints depending on your host setup, such as max script execution time, file size limits and memory limits. Whether you reach those constraints will depend on the number and size of files you are trying to download in one go. If you see error messages or your zip file is incomplete or corrupted, try several smaller downloads instead of one big one.
 
 ### How long does it take for the zip file to be created?
 
-That depends on the number and size of files you are downloading, and also on your host setup.
-Try downloading smaller numbers of files to get a feel for how long it takes before attempting a large download.
+That depends on the number and size of files you are downloading, and also on your host setup. Try downloading smaller numbers of files to get a feel for how long it takes before attempting a large download.
 
 ### Who can create downloads?
 
@@ -74,6 +72,16 @@ but if you wanted to set the file size per user you could use this filter.
 
 
 ## Changelog
+
+### 1.3.0
+
+Release date: 6 December 2020
+
+* Enhancement: Add option to disable auto-deletion of downloads.
+* Enhancement: Add option to encrypt and password-protect zip files. props to @vfontjr
+* Maintenance: Change zip files location to within Uploads directory
+* Maintenance: Update Freemius SDK
+* Bug fix: Make compatibile with Formidable Forms Pro
 
 ### 1.2.4
 
