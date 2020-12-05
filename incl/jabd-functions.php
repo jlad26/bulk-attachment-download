@@ -161,7 +161,7 @@ function jabd_check_version() {
 		if ( ! $prev_version ) {
 			jabd_on_plugin_installation();
 		} else {
-			jabd_on_plugin_upgrade();
+			jabd_on_plugin_upgrade( $prev_version );
 		}
 	
 	}
@@ -169,10 +169,14 @@ function jabd_check_version() {
 
 /**
  * Processes to be run on upgrade.
+ * @param	string	$prev_version	Plugin version before upgrade
  */
-function jabd_on_plugin_upgrade() {
+function jabd_on_plugin_upgrade( $prev_version ) {
 
-	
+	// Delete any hangover posts after moving downloads to uploads folder.
+	if (  1 == version_compare( '1.3.0', $prev_version ) ) {
+		jabd_delete_download_posts( $only_expired = false );
+	}
 	
 }
 
