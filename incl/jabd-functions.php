@@ -217,7 +217,7 @@ function jabd_on_plugin_installation() {
 		'type'					=>	'success',
 		'message'				=>	sprintf(
 										/* translators: 1: plugin name 2: opening anchor tag 3: closing anchor tag 4: opening anchor tag */
-										__( '%1$s has been activated. For settings and guidance go to the %2$sMedia settings%3$s page. Or you can go straight to your %4$sMedia%3$s where the Download option is now available in the Bulk actions dropdown.', 'bulk-attachment-download' ),
+										__( '%1$s has been activated. For settings and guidance go to the %2$sMedia settings%3$s page. Or you can go straight to your %4$sMedia%3$s where the Download option is now available (in the Bulk actions dropdown in List mode and as a Download button in Grid mode when you choose Bulk Select).', 'bulk-attachment-download' ),
 										'<strong>' . JABD_PLUGIN_NAME . '</strong>',
 										'<a href="' . esc_url( admin_url( 'options-media.php' ) ) . '">',
 										'</a>',
@@ -429,19 +429,16 @@ function jabd_guidance_section() {
 	$output_html .= _x( 'Hide Guidance', 'Hide content', 'bulk-attachment-download' ) . '&nbsp;&#9650</button></h4>';
 	$guidance_html = '<p>' . __( 'To download attachments in bulk:' , 'bulk-attachment-download' ) . '</p>';
 	$guidance_html .= '<ol><li>' . sprintf(
-	/* translators: 1: Opening anchor tag 2: Closing anchor tag 3: Opening <strong> tag 4: Closing </strong> tag */
-		__( 'Go to your %1$sMedia Library%2$s and make sure that you are viewing it in %3$sList mode%4$s. If you can see a checkbox against each of the images then you\'re good to go. If not, then you\'ll need to switch to %3$sList mode%4$s' , 'bulk-attachment-download' ),
+	/* translators: 1: Opening anchor tag 2: Closing anchor tag */
+		__( 'Go to your %1$sMedia Library%2$s.' , 'bulk-attachment-download' ),
 		'<a href="' . esc_url( admin_url( 'upload.php' ) ) . '">',
-		'</a>',
-		'<strong>',
-		'</strong>' ) . ' ';
-	$guidance_html .= '(<a href="https://wordpress.org/support/article/media-library-screen/#media-library" target="_blank">' . __( 'How?', 'bulk-attachment-download' ) . '</a>).';
+		'</a>' ) . ' ';
 	/* translators: 1: Opening <strong> tag 2: Closing </strong> tag */
-	$guidance_html .= '</li><li>' . sprintf( __( 'Select the files you want to download. Remember you can change how many items are displayed per page by going to %1$sScreen Options%2$s at the top right of the page.', 'bulk-attachment-download' ),
+	$guidance_html .= '</li><li>' . sprintf( __( 'Select the files you want to download. In Grid mode, click the %1$sBulk Select%2$s button and then click on the items you wish to download. In List mode, check the checkboxes against the items you wish to download. (Remember that in List mode you can change how many items are displayed per page by going to %1$sScreen Options%2$s at the top right of the page.', 'bulk-attachment-download' ),
 		'<strong>',
 		'</strong>' ) . '</li>';
 	/* translators: 1: Opening <strong> tag 2: Closing </strong> tag */
-	$guidance_html .= '<li>' . sprintf( __( 'Select %1$sDownload%2$s in the %1$sBulk actions%2$s dropdown and click %1$sApply%2$s. You will then be able to choose from a series of options before creating your zip file ready for download.', 'bulk-attachment-download' ),
+	$guidance_html .= '<li>' . sprintf( __( 'In Grid mode, click the %1$sDownload%2$s button. In List mode, select %1$sDownload%2$s in the %1$sBulk actions%2$s dropdown and click %1$sApply%2$s. You will then be able to choose from a series of options before creating your zip file ready for download.', 'bulk-attachment-download' ),
 		'<strong>',
 		'</strong>' ) . '</li>';
 	/* translators: 1: link to "Bulk downloads" 2: Opening <strong> tag 3: Closing </strong> tag */
@@ -546,7 +543,7 @@ function jabd_default_pwd( $args ) {
 	$options = get_option( 'jabd_options' );
 	$option = isset( $options['jabd_default_pwd'] ) ? $options['jabd_default_pwd'] : '';
 	?>
-	<input type="text" size="20" name="jabd_options[<?php echo $args['label_for']; ?>]" id="<?php echo $args['label_for']; ?>" value="<?php esc_html_e( $options['jabd_default_pwd'] ); ?>" />
+	<input type="text" size="20" name="jabd_options[<?php echo $args['label_for']; ?>]" id="<?php echo $args['label_for']; ?>" value="<?php esc_html_e( $option ); ?>" />
 	<p class="description"><?php _e( 'Set a default password that will be used on all zip files. If the option to choose a password at download is enabled, the default password can be overwritten then.', 'bulk-attachment-download' ); ?></p>
 	<?php
 }
@@ -791,11 +788,6 @@ function jabd_no_js_error_notice() {
  */
 function jabd_add_opt_out_notices() {
 	
-	$list_mode_html = Bulk_Attachment_Download_Admin_Notice_Manager::dismiss_on_redirect_link( array(
-		'redirect'	=>	admin_url( 'upload.php?mode=list' ),
-		'content'	=>	_x( 'list mode', 'text for link to switch media mode', 'bulk-attachment-download' )
-	) );
-	
 	$opt_out_notices = array(
 		'number_of_media_items'	=>	array(
 			'message'			=>	'<strong>' . JABD_PLUGIN_NAME . ':</strong> ' . __( 'Don\'t forget you can change the number of media items per page (up to 999) by going to Screen Options at the top right of the screen.', 'bulk-attachment-download' ),
@@ -803,16 +795,7 @@ function jabd_add_opt_out_notices() {
 			'screen_ids'		=>	array( 'upload' ),
 			'persistent'		=>	true,
 			'no_js_dismissable'	=>	true
-		),
-		'switch_to_list_mode'	=>	array(
-			/* translators: link to switch to list mode */
-			'message'			=>	'<strong>' . JABD_PLUGIN_NAME . ':</strong> ' . sprintf( __( 'To use bulk download, switch to %s.', 'bulk-attachment-download' ), $list_mode_html ),
-			'type'				=>	'info',
-			'screen_ids'		=>	array( 'upload' ),
-			'persistent'		=>	true,
-			'no_js_dismissable'	=>	true
 		)
-
 	);
 	
 	// Add in ratings request if appropriate. Admins are asked to rate when certain numbers of downloads have been made.
@@ -900,13 +883,6 @@ function jabd_conditional_display_admin_notice( $display, $notice ) {
 		case	'number_of_media_items' :
 			$mode = get_user_option( 'media_library_mode', get_current_user_id() ) ? get_user_option( 'media_library_mode', get_current_user_id() ) : 'grid';
 			if ( 'grid' == $mode ) {
-				$display = false;
-			}
-			break;
-		
-		case	'switch_to_list_mode' :
-			$mode = get_user_option( 'media_library_mode', get_current_user_id() ) ? get_user_option( 'media_library_mode', get_current_user_id() ) : 'grid';
-			if ( 'list' == $mode ) {
 				$display = false;
 			}
 			break;
