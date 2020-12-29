@@ -33,7 +33,7 @@ function jabd_admin_enqueue_scripts( $hook ) {
 		}
 		
 		// JS for handling download creation on Media library
-		wp_enqueue_script( 'jabd-admin-upload-js', JABD_PLUGIN_BASE_URL.'js/admin-upload.js', array( 'jquery' ), '1.0.0' );
+		wp_enqueue_script( 'jabd-admin-upload-js', JABD_PLUGIN_BASE_URL.'js/admin-upload.js', array( 'jquery', 'media-views' ), '1.0.0', true );
 
 		$localization_array = array(
 			'download_option' 			=> _x( 'Download', 'action', 'bulk-attachment-download' ),

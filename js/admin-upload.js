@@ -6,13 +6,66 @@ jQuery(document).ready(function($) {
 
 	var popupClosable = true; // Variable to set whether popup can be closed or not
 
-	// Add option to bulk actions
+	// Add option to bulk actions on list mode.
 	$('#bulk-action-selector-top, #bulk-action-selector-bottom').each( function() {
 		var newOption = '<option value="jabd-download">' + jabd_downloader.download_option + '</option>';
 		$(this).append(newOption);
 	});
-	
-	// On form submission, hijack the process if the download option has been selected
+
+	// Add bulk download button to grid mode
+	var	downloadBtnHtml = '<button type="button" class="button media-button button-primary button-large jabd-download-selected-button" disabled="disabled">Download</button>',
+		selectMode = false;
+	$('body').on( 'click', '.select-mode-toggle-button', function() {
+		var btn = $('.jabd-download-selected-button');
+		if ( ! btn.length ) {
+			$('.delete-selected-button').after(downloadBtnHtml);
+		} else {
+			// Toggle display status.
+			if ( btn.hasClass('hidden') ) {
+				btn.removeClass('hidden');
+			} else {
+				btn.addClass('hidden');
+				btn.prop('disabled', true);
+			}
+		}
+		selectMode = selectMode ? false : true;
+	});
+
+	// Enable / disable download button on toggling attachment for selection in grid mode
+	if ( 'undefined' != typeof( wp.media.frame ) ) {
+		wp.media.frame.on('selection:toggle', function() {
+			
+			if ( ! selectMode ) {
+				return false;
+			}
+
+			// If any selected, activate button, otherwise deactivate
+			var someSelected = false,
+				btn = $('.jabd-download-selected-button');
+			$('.attachment.save-ready').each( function() {
+				if ( $(this).hasClass('selected') ) {
+					someSelected = true;
+					return false;
+				}
+			});
+			if ( someSelected ) {
+				if ( true == btn.prop('disabled') ) {
+					btn.prop('disabled', false);
+				}
+			} else {
+				btn.prop('disabled', true);
+			}
+
+		});
+	}
+
+	// Handle request for attachments data in grid mode
+	$(document).on('click', '.jabd-download-selected-button', function() {
+		var attmtIds = getGridAttmtIds();
+		requestAttmtsData(attmtIds);
+	});
+
+	// On form submission in list mode, hijack the process if the download option has been selected
 	$('#posts-filter').submit( function(e){
 
 		// Check if Download has been selected
@@ -31,25 +84,7 @@ jQuery(document).ready(function($) {
 			if ( attmtIds.length > 0 ) {
 
 				// Request data
-				$.ajax({
-					url : ajaxurl,
-					type : 'post',
-					beforeSend: function() {
-						displayGatheringData();
-					},
-					data : {
-						action			: 'jabd_request_download',
-						doaction		: 'getdata',
-						downloadNonce	: jabd_downloader.download_nonce,
-						attmtIds		: attmtIds,
-					},
-					xhrFields: {
-						withCredentials: true
-					},
-					success : function( response ) {
-						requestResponse( response );
-					}
-				});
+				requestAttmtsData( attmtIds );
 				
 			} else {
 				return false;
@@ -71,6 +106,29 @@ jQuery(document).ready(function($) {
 	$('body').on( 'click', '.jabd-popup', function(evt) {
 		evt.stopPropagation();
 	});
+	
+	// Request data
+	function requestAttmtsData( attmtIds ) {
+		$.ajax({
+			url : ajaxurl,
+			type : 'post',
+			beforeSend: function() {
+				displayGatheringData();
+			},
+			data : {
+				action			: 'jabd_request_download',
+				doaction		: 'getdata',
+				downloadNonce	: jabd_downloader.download_nonce,
+				attmtIds		: attmtIds,
+			},
+			xhrFields: {
+				withCredentials: true
+			},
+			success : function( response ) {
+				requestResponse( response );
+			}
+		});
+	}
 	
 	// Display gathering data message
 	function displayGatheringData() {
@@ -107,8 +165,8 @@ jQuery(document).ready(function($) {
 
 	// Manage the download request
 	function processDownloadRequest() {
-
-		var attmtIds = getAttmtIds(),
+		
+		var attmtIds = [],
 			downloadNonce = '';
 			title = $( '.jabd-popup-msg input[type="text"]' ).val(),
 			pword = $( '.jabd-popup-msg #zipfile-password' ).val(),
@@ -116,6 +174,13 @@ jQuery(document).ready(function($) {
 			nofolders = $( '#jabd-no-folder-chkbox' ).prop( 'checked' );
 		if ( 'undefined' == typeof( pword) ) {
 			pword = '';
+		}
+
+		// Set the attachment IDs.
+		attmtIds = 'undefined' == typeof( wp.media.frame ) ? getAttmtIds() : getGridAttmtIds();
+
+		if ( ! attmtIds.length ) {
+			return false;
 		}
 
 		jQuery.ajax({
@@ -144,12 +209,23 @@ jQuery(document).ready(function($) {
 
 	}
 
-	// Get the selected attachment ids from the checked checkboxs
+	// Get the selected attachment ids from the checked checkboxes in list mode
 	function getAttmtIds() {
 		var attmtIds = [];
 		$('#the-list .check-column input[type="checkbox"]').each( function() {
 			if( $(this).prop('checked') ) {
 				attmtIds.push( $(this).val() );
+			}
+		});
+		return attmtIds;
+	}
+
+	// Get the selected attachment ids from the selected items in grid mode
+	function getGridAttmtIds() {
+		var attmtIds = [];
+		$('.attachment.save-ready').each( function() {
+			if( $(this).hasClass('selected') ) {
+				attmtIds.push( $(this).data('id') );
 			}
 		});
 		return attmtIds;
@@ -169,7 +245,7 @@ jQuery(document).ready(function($) {
 		var result = JSON.parse(response);
 		popupClosable = true;
 		setPopupContents( result.messages );
-		//give focus to download title field if container is displaying at full height and not scrollable
+		// Give focus to download title field if container is displaying at full height and not scrollable
 		var div = $('.jabd-popup').get(0);
 		if ( div.scrollHeight <= div.clientHeight ) {
 			$('.jabd-popup-msg input[type="text"]').focus();
