@@ -13,7 +13,7 @@ class Bulk_Attachment_Download_Manager {
 	/**
 	 * Constructor.
 	 */
-	public function construct() {
+	public function __construct() {
 
 		// Register all actions and filters.
 		$this->init_hooks();
@@ -73,7 +73,7 @@ class Bulk_Attachment_Download_Manager {
 		/*---------------------------------------------------------------------------------------------------------*/
 		/* Redirect to get download */
 
-		add_filter('single_template', array( $this, 'download_template' ) );
+		add_filter( 'single_template', array( $this, 'download_template' ) );
 
 		/*---------------------------------------------------------------------------------------------------------*/
 		/* Handle ajax */
@@ -99,7 +99,7 @@ class Bulk_Attachment_Download_Manager {
 	/**
 	 * Load admin js and css.
 	 */
-	function jabd_admin_enqueue_scripts( $hook ) {
+	function admin_enqueue_scripts( $hook ) {
 		
 		global $post;
 		
@@ -658,7 +658,7 @@ class Bulk_Attachment_Download_Manager {
 		$option = isset( $options['jabd_secure_downloads'] ) ? $options['jabd_secure_downloads'] : 0;
 		?>
 		<input style="margin-top: 6px" type="checkbox" name="jabd_options[<?php echo $args['label_for']; ?>]" id="<?php echo $args['label_for']; ?>" value="1" <?php checked( $option ); ?> />
-		<p class="description"><?php _e( 'Choose whether or not to prevent others accessing downloads while they are (temporarily) stored on the server. There\'s no point doing this unless you are somehow also protecting access to the files in your Uploads folder.', 'bulk-attachment-download' ); ?></p>
+		<p class="description"><?php _e( 'Choose whether or not to prevent others accessing downloads while they are stored on the server. There\'s no point doing this unless you are somehow also protecting access to the files in your Uploads folder.', 'bulk-attachment-download' ); ?></p>
 		<?php
 	}
 
@@ -1082,7 +1082,7 @@ class Bulk_Attachment_Download_Manager {
 		foreach ( $columns as $key => $column ) {
 			$new_columns[ $key ] = $column;
 			if ( 'title' == $key ) {
-				if ( display_passwords() ) {
+				if ( $this->display_passwords() ) {
 					$new_columns['jabd_download_pword'] = __( 'Zipfile Password', 'bulk-attachment-download' );
 				}
 				$new_columns['jabd_download_creator'] = __( 'Creator', 'bulk-attachment-download' );
@@ -1176,7 +1176,7 @@ class Bulk_Attachment_Download_Manager {
 	 * Handles ajax request.
 	 * Runs nonce checks, permissions checks, file size checks, and then creates download.
 	 */
-	function jabd_request_download() {
+	function request_download() {
 
 		$user_id = get_current_user_id();
 		

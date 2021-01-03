@@ -33,7 +33,7 @@ require_once JABD_PLUGIN_DIR . 'incl/class-bulk-attachment-download-manager.php'
 $jabd = new Bulk_Attachment_Download_Manager();
 
 // Define uploads constant here so that it's available for uninstall process.
-$jabd->jabd_define_uploads_folder();
+$jabd->define_uploads_folder();
 
 // Include admin notice manager class and initialize.
 require_once JABD_PLUGIN_DIR . 'incl/admin-notice-manager/class-admin-notice-manager.php';
