@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
-/*Setup*/
+/* Setup */
 
 /**
  * Internationalization
@@ -16,7 +16,7 @@ function jabd_load_plugin_textdomain() {
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
-/*Add admin js and css*/
+/* Add admin js and css */
 
 /**
  * Load admin js and css.
@@ -75,7 +75,7 @@ function jabd_admin_enqueue_scripts( $hook ) {
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
-/*Plugin activation, deactivation and upgrade*/
+/* Plugin activation, deactivation and upgrade */
 
 /**
  * Plugin activation.
@@ -246,7 +246,7 @@ function jabd_on_plugin_installation() {
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
-/*Define uploads folder*/
+/* Define uploads folder */
 
 /**
  * Define uploads dir.
@@ -284,7 +284,7 @@ function jabd_upload_dir_error_notice() {
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
-/*Plugin settings*/
+/* Plugin settings */
 
 /**
  * Initialize plugin settings.
@@ -751,7 +751,7 @@ function jabd_remove_htaccess( $value, $old_value ) {
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
-/*Plugin page*/
+/* Plugin page */
 
 /**
  * Add settings and guidance link to description on plugins page.
@@ -772,7 +772,7 @@ function jabd_plugin_row_meta( $links, $file ) {
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
-/*Admin notices*/
+/* Admin notices */
 
 /**
  * Add no js error admin notices to Plugins page, Media settings, Media page, and Bulk Downloads page.
@@ -924,7 +924,7 @@ function jabd_prevent_rating_request( $user_id ) {
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
-/*Download custom post type*/
+/* Download custom post type */
 
 /**
  * Register download custom post type.
@@ -1064,7 +1064,7 @@ function jabd_post_updated_messages( $messages ) {
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
-/*Redirect to get download*/
+/* Redirect to get download */
 
 /**
  * Template for download custom post type which delivers zip file.
@@ -1102,7 +1102,7 @@ function jabd_404_redirect() {
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
-/*Ajax functions*/
+/* Ajax functions */
 
 /**
  * Handles ajax request.

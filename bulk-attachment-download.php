@@ -126,18 +126,18 @@ function jabd_fs_uninstall_cleanup() {
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
-/*Plugin activation, deactivation and upgrade*/
+/* Plugin activation, deactivation and upgrade */
 register_activation_hook( __FILE__, 'jabd_on_activation' );
 register_deactivation_hook( __FILE__, 'jabd_on_deactivation' );
 add_action('plugins_loaded', 'jabd_check_version');
 
 /*---------------------------------------------------------------------------------------------------------*/
-/*Plugin settings*/
+/* Plugin settings */
 add_action( 'admin_init', 'jabd_init_settings' );
 add_filter( 'pre_update_option_jabd_options', 'jabd_before_options_update', 10, 3 ); //run actions on change of settings
 
 /*---------------------------------------------------------------------------------------------------------*/
-/*Admin notices*/
+/* Admin notices */
 add_action( 'admin_init', 'jabd_add_opt_out_notices' );
 add_action( 'admin_notices', 'jabd_no_js_error_notice' );
 add_filter( 'jabd_display_opt_out_notice', 'jabd_conditional_display_admin_notice', 10, 2 ); //conditional check on display
@@ -147,39 +147,39 @@ foreach ( $count_triggers as $count_trigger ) {
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
-/*Add settings and guidance link to description on plugins page*/
+/* Add settings and guidance link to description on plugins page */
 add_filter( 'plugin_row_meta', 'jabd_plugin_row_meta', 10, 2 );
 
 /*---------------------------------------------------------------------------------------------------------*/
-/*Add admin js and css*/
+/* Add admin js and css */
 add_action( 'admin_enqueue_scripts', 'jabd_admin_enqueue_scripts' );
 
 /*---------------------------------------------------------------------------------------------------------*/
-/*Download custom post type*/
+/* Download custom post type */
 
-//register custom post type
+// Register custom post type.
 add_action( 'init', 'jabd_register_download_post_type' );
 
-//prevent add new post functionality
+// Prevent add new post functionality.
 add_action( 'load-post-new.php', 'jabd_prevent_add_new_download' );
 
-//on manual post deletion delete zip file
+// On manual post deletion delete zip file.
 add_action( 'before_delete_post', 'jabd_delete_download_zip' );
 
-//add columns to post list
+// Sdd columns to post list.
 add_filter( 'manage_jabd_download_posts_columns' , 'jabd_add_link_columns' );
 add_action( 'manage_jabd_download_posts_custom_column', 'jabd_add_link_columns_content' );
 
-//amend display and messages for download post
+// Amend display and messages for download post.
 add_filter( 'post_updated_messages', 'jabd_post_updated_messages' );
 
 /*---------------------------------------------------------------------------------------------------------*/
-/*Redirect to get download*/
+/* Redirect to get download */
 
 add_filter('single_template', 'jabd_download_template');
 
 /*---------------------------------------------------------------------------------------------------------*/
-/*Handle ajax*/
+/* Handle ajax */
 
-//Process ajax upload
+// Process ajax upload.
 add_action( 'wp_ajax_jabd_request_download', 'jabd_request_download' );
