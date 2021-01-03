@@ -1,15 +1,23 @@
 # Bulk Attachment Download
 
 Bulk download selected media or attachment files from your Media Library as a zip file.
-Options include: a) Include / exclude intermediate image sizes; b) Keep / collapse the uploads folder structure.
+Options include: a) Include / exclude intermediate image sizes; b) Keep / collapse the uploads folder structure; c) encrypt and password-protect the downloadable zip files.
 
 ## Description
 
-A 'Download' option is added to the 'Bulk Actions' dropdown in the Media Library.
-Choose the attachments you want to export, click 'Apply', and a zip file of those attachments is created that you can then download.
+A 'Download' option is added to both List and Grid modes in the Media Library. Choose the attachments you want to export, click the button, and a zip file of those attachments is created that you can then download.
 
-Before the zip file is created, you'll see a) how many files will be downloaded, and b) how big the uncompressed files are.
-By default, you are also given the option to:
+### Selecting for download in List mode
+
+In List mode the 'Download' option appears in the Bulk Actions dropdown. Select the attachments by checking the checkboxes, choose 'Download' in the dropdown, then click 'Apply'.
+
+### Selecting for download in Grid mode
+
+In Grid mode, first click the 'Bulk Select' button. Then click on the attachments you want to download and hit the 'Download' button.
+
+### Download options
+
+Before the zip file is created, you'll see a) how many files will be downloaded, and b) how big the uncompressed files are. By default, you are also given the option to:
 
 * Include or exclude image intermediate sizes.
 * Include in your download the folder structure you use in your uploads folder (e.g. year/month) or have all files downloaded in a single folder.
@@ -30,19 +38,15 @@ However there's no point in using this feature or the .htaccess one unless you a
 1. Upload the plugin files to the `/wp-content/plugins/plugin-name` directory, or install the plugin through the WordPress plugins screen directly.
 1. Activate the plugin through the 'Plugins' screen in WordPress
 
-The 'Download' option will now appear in the 'Bulk Actions' dropdown of the Media Library (when in List mode).
-
-
 ## Frequently Asked Questions
 
 ### Where do I find my downloads?
 
 Click on 'Bulk downloads' under 'Media'.
 
-### How can I increase the number of attachments I can download in one go?
+### In List mode, how can I increase the number of attachments I can download in one go?
 
-To increase the number of attachments you can see on the screen at once, click on 'Screen Options' at the top right of the Media Library,
-and increase the 'Number of items per page'.
+To increase the number of attachments you can see on the screen in List mode, click on 'Screen Options' at the top right of the Media Library and increase the 'Number of items per page'.
 
 ### What's the maximum number of attachments I can download at once?
 
@@ -60,7 +64,7 @@ Permissions are set so that:
 * A user can download an attachment if that user has permission to edit the attachment.
 * Only users who have the capability 'manage_options' can download, edit, or delete a download that another user has created.
 
-That means that if the Wordpress default roles and capabilities are being used:
+That means that if the WordPress default roles and capabilities are being used:
 * Administrators and editors can download any attachments.
 * Authors and contributors can download only those attachments they uploaded.
 * Only administrators can download, edit or delete a download created by another user.
@@ -73,9 +77,17 @@ Probably because you are using the standard Windows zip facility, which will not
 
 * `jabd_max_files_size`. Max download file size limit is set in the plugin settings in Settings > Media,
 but if you wanted to set the file size per user you could use this filter.
-
+* `jabd_display_passwords`. Whether or not to store and display passwords is set in the the plugin settings in Settings > Media, but you can also use this filter for more granular control, for example if you wanted only to display for certain users.
+* `jabd_zip_password`. Use this filter to amend a zip file password. One scenario might be to use different fixed passwords for different users or user groups, as only a single default password can be set using the plugin settings.
+* `jabd_file_path_rel_to_uploads`. Used to amend the path of an attachment relative to the uploads folder.
 
 ## Changelog
+
+### 1.3.1
+
+Release date: 3 January 2021
+
+* Enhancement: Enable bulk downloading for the Media Library Grid mode.
 
 ### 1.3.0
 
