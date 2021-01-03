@@ -196,6 +196,20 @@ function jabd_on_plugin_upgrade( $prev_version ) {
 		}
 
 	}
+
+	// Add in message about new features if on version 1.3.1
+	if ( '1.3.1' == JABD_VERSION ) {
+		$features_message = '<strong>' . JABD_PLUGIN_NAME . ':</strong> ';
+		$features_message .= __( 'Good news! With this new version of the plugin you can now create your bulk downloads in Grid mode as well as List mode. (And just in case you haven\'t already noticed, options for password protection and disabling auto-deletion were also added in the last upgrade.)', 'bulk-attachment-download' );
+		Bulk_Attachment_Download_Admin_Notice_Manager::add_notice( array(
+			'message'		=>	$features_message,
+			'user_ids'		=>	array( 'administrator' ),
+			'type'			=>	'info',
+			'screen_ids'	=>	array( 'upload', 'plugins' ),
+			'persistent'	=>	true,
+			'dismissable'	=>	true
+		) );
+	}
 	
 }
 
@@ -1035,7 +1049,7 @@ function display_passwords() {
 			$display_pwds = true;
 		}
 	}
-	return apply_filters( 'jabd_display_pass_words', $display_pwds );
+	return apply_filters( 'jabd_display_passwords', $display_pwds );
 }
 
 /**
