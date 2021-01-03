@@ -29,13 +29,13 @@ if ( ! defined( 'JABD_DOWNLOADS_DIR' ) ) define( 'JABD_DOWNLOADS_DIR', 'jabd-dow
 if ( ! defined( 'JABD_VERSION' ) ) define( 'JABD_VERSION', '1.3.1' );
 
 // include functions
-require_once JABD_PLUGIN_DIR.'incl/jabd-functions.php';
+require_once JABD_PLUGIN_DIR . 'incl/jabd-functions.php';
 
 // define uploads constant here so that it's available for uninstall process
 jabd_define_uploads_folder();
 
 //include admin notice manager class and initialize
-require_once JABD_PLUGIN_DIR.'incl/admin-notice-manager/class-admin-notice-manager.php';
+require_once JABD_PLUGIN_DIR . 'incl/admin-notice-manager/class-admin-notice-manager.php';
 Bulk_Attachment_Download_Admin_Notice_Manager::init( array(
 	'plugin_name'		=>	'Bulk Attachment Download',
 	'manager_id'		=>	'jabd',
@@ -56,7 +56,7 @@ if ( ! function_exists( 'jabd_fs' ) ) {
 
         if ( ! isset( $jabd_fs ) ) {
             // Include Freemius SDK.
-            require_once dirname(__FILE__) . '/freemius/start.php';
+            require_once dirname( __FILE__ ) . '/freemius/start.php';
 
             $jabd_fs = fs_dynamic_init( array(
                 'id'                  => '1226',
@@ -85,7 +85,7 @@ if ( ! function_exists( 'jabd_fs' ) ) {
 }
 
 // Hook in uninstall actions.
-jabd_fs()->add_action('after_uninstall', 'jabd_fs_uninstall_cleanup');
+jabd_fs()->add_action( 'after_uninstall', 'jabd_fs_uninstall_cleanup' );
 
 function jabd_fs_uninstall_cleanup() {
 
@@ -109,7 +109,7 @@ function jabd_fs_uninstall_cleanup() {
         // delete .htaccess (if it exists) and downloads folder
         jabd_remove_htaccess( 1, 1 );
         $uploads_dir_info = wp_upload_dir();
-        @rmdir( $uploads_dir_info['basedir'] . '/'.JABD_DOWNLOADS_DIR );
+        @rmdir( $uploads_dir_info['basedir'] . '/' . JABD_DOWNLOADS_DIR );
 
     }
 

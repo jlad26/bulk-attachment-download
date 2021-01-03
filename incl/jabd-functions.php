@@ -25,15 +25,15 @@ function jabd_admin_enqueue_scripts( $hook ) {
 	
 	global $post;
 	
-	if ( 'upload.php' == $hook ) { //if we are on media library
+	if ( 'upload.php' == $hook ) { // If we are on media library...
 		
 		// Don't allow downloading if we can't work with uploads dir.
 		if ( ! defined( 'JABD_UPLOADS_DIR' ) ) {
 			return false;
 		}
 		
-		// JS for handling download creation on Media library
-		wp_enqueue_script( 'jabd-admin-upload-js', JABD_PLUGIN_BASE_URL.'js/admin-upload.js', array( 'jquery', 'media-views' ), '1.0.0', true );
+		// JS for handling download creation on Media library.
+		wp_enqueue_script( 'jabd-admin-upload-js', JABD_PLUGIN_BASE_URL . 'js/admin-upload.js', array( 'jquery', 'media-views' ), '1.0.0', true );
 
 		$localization_array = array(
 			'download_option' 			=> _x( 'Download', 'action', 'bulk-attachment-download' ),
@@ -50,25 +50,25 @@ function jabd_admin_enqueue_scripts( $hook ) {
 		);
 		
 	} elseif (
-		( 'edit.php' == $hook && 'jabd_download' == get_query_var('post_type') ) || // we are listing download posts
-		( 'post.php' == $hook && 'jabd_download' == $post->post_type ) //we are editing a download
+		( 'edit.php' == $hook && 'jabd_download' == get_query_var('post_type') ) || // ...if we are listing download posts...
+		( 'post.php' == $hook && 'jabd_download' == $post->post_type ) // ...if we are editing a download...
 	) {
 		
-		// CSS for styling list of downloads
+		// CSS for styling list of downloads.
 		wp_enqueue_style(
 			'jabd-admin-downloads-css',
 			JABD_PLUGIN_BASE_URL.'css/downloads-style.css'
 		);
 		
-	} elseif ( 'options-media.php' == $hook ) { // we are on media settings
+	} elseif ( 'options-media.php' == $hook ) { // ...if we are on media settings...
 		
-		// JS for handling show / hide of guidance
-		wp_enqueue_script( 'jabd-guidance-display-js', JABD_PLUGIN_BASE_URL.'js/admin-options-media.js', array( 'jquery' ), '1.0.0' );
+		// JS for handling show / hide of guidance.
+		wp_enqueue_script( 'jabd-guidance-display-js', JABD_PLUGIN_BASE_URL . 'js/admin-options-media.js', array( 'jquery' ), '1.0.0' );
 		
 		// CSS for styling guidance section
 		wp_enqueue_style(
 			'jabd-admin-media-settings-css',
-			JABD_PLUGIN_BASE_URL.'css/media-settings-style.css'
+			JABD_PLUGIN_BASE_URL . 'css/media-settings-style.css'
 		);
 		
 	}
@@ -89,7 +89,7 @@ function jabd_on_activation() {
 	$plugin = isset( $_REQUEST['plugin'] ) ? $_REQUEST['plugin'] : '';
 	check_admin_referer( 'activate-plugin_' . $plugin );
 	
-	// add hourly cron event used to delete expired downloads
+	// Add hourly cron event used to delete expired downloads.
 	$options = get_option( 'jabd_options' );
 	$auto_delete = true;
 	if ( isset( $options['jabd_disable_auto_delete'] ) ) {
@@ -102,7 +102,7 @@ function jabd_on_activation() {
 		wp_schedule_event( time(), 'hourly', 'jabd_hourly_event' );
 	}
 	
-	// register our custom post type and flush rewrite rules
+	// Register our custom post type and flush rewrite rules.
 	jabd_register_download_post_type();
 	flush_rewrite_rules();
 
@@ -120,7 +120,7 @@ function jabd_on_deactivation() {
 	$plugin = isset( $_REQUEST['plugin'] ) ? $_REQUEST['plugin'] : '';
 	check_admin_referer( 'deactivate-plugin_' . $plugin );
 
-	// remove hourly event
+	// Remove hourly event.
 	wp_clear_scheduled_hook( 'jabd_hourly_event' );
 	
 }
@@ -145,7 +145,7 @@ function jabd_delete_download_posts( $only_expired = true ) {
 		'post_status'		=> 'all'
 	) );
 	if ( ! empty( $download_posts ) ) {
-		date_default_timezone_set('UTC');
+		date_default_timezone_set( 'UTC' );
 		$now = time();
 		foreach( $download_posts as $download_post ) {
 			if ( $only_expired ) {
@@ -187,7 +187,7 @@ function jabd_on_plugin_upgrade( $prev_version ) {
 	if (  1 == version_compare( '1.3.0', $prev_version ) ) {
 		jabd_delete_download_posts( $only_expired = false );
 
-		// recreate .htaccess file if needed.
+		// Recreate .htaccess file if needed.
 		$options = get_option( 'jabd_options' );
 		if ( isset(  $options['jabd_secure_downloads'] ) ) {
 			if ( $options['jabd_secure_downloads'] ) {
@@ -197,7 +197,7 @@ function jabd_on_plugin_upgrade( $prev_version ) {
 
 	}
 
-	// Add in message about new features if on version 1.3.1
+	// Add in message about new features if on version 1.3.1.
 	if ( '1.3.1' == JABD_VERSION ) {
 		$features_message = '<strong>' . JABD_PLUGIN_NAME . ':</strong> ';
 		$features_message .= __( 'Good news! With this new version of the plugin you can now create your bulk downloads in Grid mode as well as List mode. (And just in case you haven\'t already noticed, options for password protection and disabling auto-deletion were also added in the last upgrade.)', 'bulk-attachment-download' );
@@ -225,7 +225,7 @@ function jabd_on_plugin_installation() {
 	delete_option( 'jabd_notices' );
 	delete_metadata( 'user', 0, 'jabd_dismissed_notices', false, true );
 	
-	// add greeting and guidance message
+	// Add greeting and guidance message.
 	$notice_args = array(
 		'id'					=>	'greeting_on_installation',
 		'type'					=>	'success',
@@ -292,10 +292,10 @@ function jabd_upload_dir_error_notice() {
  */
 function jabd_init_settings() {
 	
-	// register a new setting for "Media" page
+	// Register a new setting for "Media" page.
     register_setting( 'media', 'jabd_options', 'jabd_sanitize_options' );
 	
-	// register a new section in the "Media" page
+	// Register a new section in the "Media" page.
 	add_settings_section(
 		'jabd_settings_section',
 		'<span id="jabd-settings">' . JABD_PLUGIN_NAME . '</span>',
@@ -303,7 +303,7 @@ function jabd_init_settings() {
 		'media'
 	);
 	
-	// register fields in the "jabd_settings_section" section, inside the "Media" page
+	// Register fields in the "jabd_settings_section" section, inside the "Media" page.
 	add_settings_field(
 		'jabd_max_size',
 		__( 'Max uncompressed file size', 'bulk-attachment-download' ),
@@ -432,7 +432,7 @@ function jabd_init_settings() {
 }
 
 /**
- * Output the guidance section
+ * Output the guidance section.
  */
 function jabd_guidance_section() {
 	
@@ -470,7 +470,7 @@ function jabd_guidance_section() {
 }
 
 /**
- * Output the max uncompressed file size settings field
+ * Output the max uncompressed file size settings field.
  */
 function jabd_max_size_input( $args ) {
 	$options = get_option( 'jabd_options' );
@@ -487,7 +487,7 @@ function jabd_max_size_input( $args ) {
 }
 
 /**
- * Output the default intermediate sizes settings field
+ * Output the default intermediate sizes settings field.
  */
 function jabd_int_sizes_default_cb( $args ) {
 	$options = get_option( 'jabd_options' );
@@ -499,7 +499,7 @@ function jabd_int_sizes_default_cb( $args ) {
 }
 
 /**
- * Output the default single folder settings field
+ * Output the default single folder settings field.
  */
 function jabd_single_folder_default_cb( $args ) {
 	$options = get_option( 'jabd_options' );
@@ -511,7 +511,7 @@ function jabd_single_folder_default_cb( $args ) {
 }
 
 /**
- * Output the disable auto deletion settings field
+ * Output the disable auto deletion settings field.
  */
 function jabd_disable_auto_delete_cb( $args ) {
 	$options = get_option( 'jabd_options' );
@@ -523,7 +523,7 @@ function jabd_disable_auto_delete_cb( $args ) {
 }
 
 /**
- * Output the optional password settings field
+ * Output the optional password settings field.
  */
 function jabd_pwd_downloads_cb( $args ) {
 	$options = get_option( 'jabd_options' );
@@ -535,7 +535,7 @@ function jabd_pwd_downloads_cb( $args ) {
 }
 
 /**
- * Output the store passwords settings field
+ * Output the store passwords settings field.
  */
 function jabd_store_pwds_cb( $args ) {
 	$options = get_option( 'jabd_options' );
@@ -551,7 +551,7 @@ function jabd_store_pwds_cb( $args ) {
 }
 
 /**
- * Output the default password settings field
+ * Output the default password settings field.
  */
 function jabd_default_pwd( $args ) {
 	$options = get_option( 'jabd_options' );
@@ -563,7 +563,7 @@ function jabd_default_pwd( $args ) {
 }
 
 /**
- * Output section explaining that password protection is not available
+ * Output section explaining that password protection is not available.
  */
 function jabd_no_encryption( $args ) {
 	?>
@@ -572,7 +572,7 @@ function jabd_no_encryption( $args ) {
 }
 
 /**
- * Output the secure download settings field
+ * Output the secure download settings field.
  */
 function jabd_secure_downloads_cb( $args ) {
 	$options = get_option( 'jabd_options' );
@@ -584,7 +584,7 @@ function jabd_secure_downloads_cb( $args ) {
 }
 
 /**
- * Output the delete on uninstall settings field
+ * Output the delete on uninstall settings field.
  */
 function jabd_delete_on_uninstall_cb( $args ) {
 	$options = get_option( 'jabd_options' );
@@ -596,30 +596,30 @@ function jabd_delete_on_uninstall_cb( $args ) {
 }
 
 /**
- * Sanitize the settings before saving
+ * Sanitize the settings before saving.
  */
 function jabd_sanitize_options( $settings ) {
 	
-	if ( !empty( $settings ) ) {
+	if ( ! empty( $settings ) ) {
 		foreach ( $settings as $key => $setting ) {
 			if ( 'jabd_max_size' == $key ) {
-				$setting = $setting + 0; //convert to a number
-				// is posted data is a float or int and is greater than 0
+				$setting = $setting + 0; // Convert to a number.
+				// If posted data is a float or int and is greater than 0...
 				if (
 					( is_int( $setting ) || is_float( $setting ) ) &&
 					$setting > 0
 				) {
-					$settings[$key] = $setting;
-				} else { // otherwise set to whatever was set before and default of 100 if not set
+					$settings[ $key ] = $setting;
+				} else { // ...otherwise set to whatever was set before and default of 100 if not set.
 					$options = get_option( 'jabd_options' );
-					$settings[$key] = isset( $options['jabd_max_size'] ) ? $options['jabd_max_size'] : 100;
+					$settings[ $key ] = isset( $options['jabd_max_size'] ) ? $options['jabd_max_size'] : 100;
 				}
 			
 			} elseif ( 'jabd_default_pwd' == $key ) {
-				$settings[$key] = sanitize_text_field( $setting );
+				$settings[ $key ] = sanitize_text_field( $setting );
 			} else {
 				$value = intval( $setting );
-				$settings[$key] = $value ? 1 : 0;
+				$settings[ $key ] = $value ? 1 : 0;
 			}
 		}
 	}
@@ -629,7 +629,7 @@ function jabd_sanitize_options( $settings ) {
 
 /**
  * Add / remove htaccess file as necessary when "Make downloads secure" option is updated, and
- * Add/ remove automatic cron event for deletion of downloads
+ * add/ remove automatic cron event for deletion of downloads.
  * @hooked pre_update_option_jabd_options
  */
 function jabd_before_options_update( $value, $old_value, $option ) {
@@ -638,17 +638,17 @@ function jabd_before_options_update( $value, $old_value, $option ) {
 		return false;
 	}
 	
-	if ( current_user_can('manage_options') ) { // make sure user is administrator
+	if ( current_user_can('manage_options') ) { // Make sure user is administrator.
 		
 		// Handle change of .htaccess setting.
 		$old_htaccess_setting = isset( $old_value['jabd_secure_downloads'] ) ? $old_value['jabd_secure_downloads'] : '';
 		$new_htaccess_setting = isset( $value['jabd_secure_downloads'] ) ? $value['jabd_secure_downloads'] : '';
 		
-		if ( $old_htaccess_setting != $new_htaccess_setting ) { // if the option has been changed
+		if ( $old_htaccess_setting != $new_htaccess_setting ) { // If the option has been changed...
 
-			if ( $new_htaccess_setting ) { // if we need a .htaccess file
+			if ( $new_htaccess_setting ) { // If we need a .htaccess file...
 				$value = jabd_create_htaccess( $value, $old_value );
-			} else { // we are removing the .htaccess file
+			} else { // ...otherwise we are removing the .htaccess file.
 				$value = jabd_remove_htaccess( $value, $old_value );
 			}
 		}
@@ -657,11 +657,11 @@ function jabd_before_options_update( $value, $old_value, $option ) {
 		$old_auto_delete_setting = isset( $old_value['jabd_disable_auto_delete'] ) ? $old_value['jabd_disable_auto_delete'] : '';
 		$new_auto_delete_setting = isset( $value['jabd_disable_auto_delete'] ) ? $value['jabd_disable_auto_delete'] : '';
 		
-		if ( $old_auto_delete_setting != $new_auto_delete_setting ) { // if the option has been changed
+		if ( $old_auto_delete_setting != $new_auto_delete_setting ) { // If the option has been changed...
 
-			if ( $new_auto_delete_setting ) { // if we need to disable auto deletion
+			if ( $new_auto_delete_setting ) { // If we need to disable auto deletion...
 				wp_clear_scheduled_hook( 'jabd_hourly_event' );
-			} else { // we are enabling auto deletion
+			} else { // ...otherwise we are enabling auto deletion.
 				wp_schedule_event( time(), 'hourly', 'jabd_hourly_event' );
 			}
 		}
@@ -679,15 +679,15 @@ function jabd_before_options_update( $value, $old_value, $option ) {
  */
 function jabd_create_htaccess( $value, $old_value ) {
 
-	// create downloads dir if necessary
-	if ( ! file_exists( JABD_UPLOADS_DIR.JABD_DOWNLOADS_DIR ) ) {
-		mkdir( JABD_UPLOADS_DIR.JABD_DOWNLOADS_DIR, 0755 );
+	// Create downloads dir if necessary.
+	if ( ! file_exists( JABD_UPLOADS_DIR . JABD_DOWNLOADS_DIR ) ) {
+		mkdir( JABD_UPLOADS_DIR . JABD_DOWNLOADS_DIR, 0755 );
 	}
 	
-	$htaccess_path = JABD_UPLOADS_DIR.JABD_DOWNLOADS_DIR.'/.htaccess';
+	$htaccess_path = JABD_UPLOADS_DIR . JABD_DOWNLOADS_DIR . '/.htaccess';
 			
 	// create / over-write htaccess file
-	$htaccess = @fopen($htaccess_path, 'w');
+	$htaccess = @fopen( $htaccess_path, 'w' );
 	if ( ! $htaccess ) {
 		$args = array(
 			'id'		=>	'no_htaccess_update',
@@ -695,16 +695,16 @@ function jabd_create_htaccess( $value, $old_value ) {
 			'screen_ids'	=>	array( 'options-media' )
 		);
 		Bulk_Attachment_Download_Admin_Notice_Manager::add_notice( $args );
-		$value = $old_value; // reset the options to old value to prevent update
+		$value = $old_value; // Reset the options to old value to prevent update.
 	} else {
 		fwrite( $htaccess, "Order Deny,Allow\nDeny from all" );
 		fclose( $htaccess );
-		if ( ! @chmod( $htaccess_path, 0644 ) ) { // set permissions and give warning if permissions cannot be set
-			$disp_htaccess_path = str_replace( '\\', '/', str_replace( trim( ABSPATH, '/' ), '', JABD_UPLOADS_DIR.JABD_DOWNLOADS_DIR.'/.htaccess' ) );
+		if ( ! @chmod( $htaccess_path, 0644 ) ) { // Set permissions and give warning if permissions cannot be set.
+			$disp_htaccess_path = str_replace( '\\', '/', str_replace( trim( ABSPATH, '/' ), '', JABD_UPLOADS_DIR . JABD_DOWNLOADS_DIR . '/.htaccess' ) );
 			$args = array(
 				'id'			=>	'htaccess_permissions_error',
 				/* translators: Filepath to .htaccess file */
-				'message'		=>	JABD_PLUGIN_NAME . ': '. sprintf( __( 'The .htaccess file has been created to prevent access to downloads. However the plugin could not confirm that permissions have been correctly set on the .htaccess file itself, which is a security risk. Please confirm that permissions on the file have been set to 0644 - it can be found at %s.', 'bulk-attachment-download' ), $disp_htaccess_path ),
+				'message'		=>	JABD_PLUGIN_NAME . ': ' . sprintf( __( 'The .htaccess file has been created to prevent access to downloads. However the plugin could not confirm that permissions have been correctly set on the .htaccess file itself, which is a security risk. Please confirm that permissions on the file have been set to 0644 - it can be found at %s.', 'bulk-attachment-download' ), $disp_htaccess_path ),
 				'type'			=>	'warning',
 				'screen_ids'	=>	array( 'options-media' ),
 				'persistent'	=>	true,
@@ -727,7 +727,7 @@ function jabd_create_htaccess( $value, $old_value ) {
  */
 function jabd_remove_htaccess( $value, $old_value ) {
 
-	$htaccess_path = JABD_UPLOADS_DIR.JABD_DOWNLOADS_DIR.'/.htaccess';
+	$htaccess_path = JABD_UPLOADS_DIR . JABD_DOWNLOADS_DIR . '/.htaccess';
 				
 	if ( file_exists( $htaccess_path ) ) {
 		if ( ! @unlink( $htaccess_path ) ) {
@@ -737,10 +737,10 @@ function jabd_remove_htaccess( $value, $old_value ) {
 				/* translators: Filepath to .htaccess file */
 				'message'	=>	JABD_PLUGIN_NAME . ': ' . sprintf( __( 'The .htaccess file preventing direct access to your downloads could not be deleted. Please delete the file manually and then unset the Make downloads secure setting again. The file can be found at %s. Alternatively you may uninstall and re-install the plugin.', 'bulk-attachment-download' ), $disp_htaccess_path ),
 				'screen_ids'	=>	array( 'options-media' ),
-				'persistent'		=>	true
+				'persistent'	=>	true
 			);
 			Bulk_Attachment_Download_Admin_Notice_Manager::add_notice( $args );
-			$value = $old_value; // reset the options to old value to prevent update
+			$value = $old_value; // Reset the options to old value to prevent update.
 		}
 	} else {
 		Bulk_Attachment_Download_Admin_Notice_Manager::delete_added_notice_from_all_users( 'no_htaccess_delete' );
@@ -797,7 +797,7 @@ function jabd_no_js_error_notice() {
 }
 
 /**
- * Add opt out admin notices
+ * Add opt out admin notices.
  * @hooked admin_init
  */
 function jabd_add_opt_out_notices() {
@@ -887,7 +887,7 @@ function jabd_add_opt_out_notices() {
 }
 
 /**
- * Check conditions for display of admin notice
+ * Check conditions for display of admin notice.
  * @hooked jabd_display_opt_out_notice
  */
 function jabd_conditional_display_admin_notice( $display, $notice ) {
@@ -960,16 +960,16 @@ function jabd_register_download_post_type() {
 		'supports'				=> array( 'title' ),
 		'capabilities'			=> array(
 
-			// primitive/meta caps
+			// Primitive/meta caps.
 			'create_posts'           => 'do_not_allow',
 
-			// primitive caps used outside of map_meta_cap()
+			// Primitive caps used outside of map_meta_cap().
 			'edit_posts'             => 'upload_files',
 			'edit_others_posts'      => 'manage_options',
 			'publish_posts'          => 'upload_files',
 			'read_private_posts'     => 'read',
 
-			// primitive caps used inside of map_meta_cap()
+			// Primitive caps used inside of map_meta_cap().
 			'read'                   => 'read',
 			'delete_posts'           => 'upload_files',
 			'delete_private_posts'   => 'upload_files',
@@ -1022,12 +1022,12 @@ function jabd_add_link_columns_content( $column ) {
 		
 		case 'jabd_download_pword' :
 			$pword = get_post_meta( $post->ID, 'jabd_pword', true );
-			echo esc_html($pword);
+			echo esc_html( $pword );
 			break;
 		
 		case 'jabd_download_creator' :
 			$user = get_user_by( 'id', $post->post_author );
-			echo esc_html($user->user_login);
+			echo esc_html( $user->user_login );
 			break;
 			
 		case 'jabd_download_button' :
@@ -1067,18 +1067,18 @@ function jabd_post_updated_messages( $messages ) {
 /*Redirect to get download*/
 
 /**
- * Template for download custom post type which delivers zip file
+ * Template for download custom post type which delivers zip file.
  * @hooked single_template
  */
 function jabd_download_template( $template ) {
 	if ( 'jabd_download' == get_post_type( get_queried_object_id() ) ) {
-		$template = JABD_PLUGIN_DIR.'templates/single-jabd_download.php';
+		$template = JABD_PLUGIN_DIR . 'templates/single-jabd_download.php';
 	}
 	return $template;
 }
 
 /**
- * Increments download count stored in options and adds request notice if appropriate
+ * Increments download count stored in options and adds request notice if appropriate.
  */
 function jabd_increment_download_count() {
 	$options = get_option( 'jabd_storage' );
@@ -1091,7 +1091,7 @@ function jabd_increment_download_count() {
 }
 
 /**
- * Redirects to 404 (called if download file does not exist or user does not have permission to download)
+ * Redirects to 404 (called if download file does not exist or user does not have permission to download).
  */
 function jabd_404_redirect() {
 	global $wp_query;
@@ -1105,8 +1105,8 @@ function jabd_404_redirect() {
 /*Ajax functions*/
 
 /**
- * Handles ajax request
- * Runs nonce checks, permissions checks, file size checks, and then creates download
+ * Handles ajax request.
+ * Runs nonce checks, permissions checks, file size checks, and then creates download.
  */
 function jabd_request_download() {
 
@@ -1119,26 +1119,26 @@ function jabd_request_download() {
 		$permissions_errors[] = __( 'Security checks failed.', 'bulk-attachment-download' );
 	}
 
-	// get file ids
+	// Get file ids.
 	$valid_file_ids = true;
-	if ( empty( $_POST['attmtIds'] ) or ! is_array( $_POST['attmtIds'] ) ) {
+	if ( empty( $_POST['attmtIds'] ) || ! is_array( $_POST['attmtIds'] ) ) {
 		$valid_file_ids = false;
 	} else {
 		foreach ( $_POST['attmtIds'] as $attmt_id ) {
-			if ( ! $attmt_id or ! ctype_digit( $attmt_id ) ) {
+			if ( ! $attmt_id || ! ctype_digit( $attmt_id ) ) {
 				$valid_file_ids = false;
 			}
 		}
 	}
 
-	if ( empty( $permissions_errors ) and $valid_file_ids ) {
+	if ( empty( $permissions_errors ) && $valid_file_ids ) {
 		
-		// Compatibilty with Formidable Forms Pro
+		// Compatibilty with Formidable Forms Pro.
 		if ( class_exists( 'FrmProFileField' ) ) {
 			remove_action( 'pre_get_posts', 'FrmProFileField::filter_media_library', 99 );
 		}
 
-		// get posts and check they are attachments
+		// Get posts and check they are attachments.
 		$files_to_download = get_posts( array(
 			'posts_per_page'		=> -1,
 			'post_type'				=> 'attachment',
@@ -1146,7 +1146,7 @@ function jabd_request_download() {
 			'ignore_sticky_posts'	=> true
 		) );
 
-		// Compatibilty with Formidable Forms Pro
+		// Compatibilty with Formidable Forms Pro.
 		if ( class_exists( 'FrmProFileField' ) ) {
 			add_action( 'pre_get_posts', 'FrmProFileField::filter_media_library', 99 );
 		}
@@ -1161,7 +1161,7 @@ function jabd_request_download() {
 		$permissions_errors[] = __( 'No valid files selected for download.', 'bulk-attachment-download' );
 	} else {
 		
-		// check permissions
+		// Check permissions.
 		foreach ( $files_to_download as $file_to_download ) {
 			if ( current_user_can( 'edit_post', $file_to_download->ID ) ) {
 				$permitted_files[] = $file_to_download;
@@ -1174,7 +1174,7 @@ function jabd_request_download() {
 		
 	}
 
-	if ( empty( $permissions_errors ) ) { // proceed if no errors
+	if ( empty( $permissions_errors ) ) { // Proceed if no errors.
 
 		$under_int_file_limit = $under_file_limit = true;
 		$doaction = sanitize_text_field( $_POST['doaction'] );
@@ -1191,7 +1191,7 @@ function jabd_request_download() {
 		foreach ( $permitted_files as $permitted_file ) {
 			$file_path = get_attached_file( $permitted_file->ID, true );
 
-			if ( file_exists( $file_path ) ) { // if the file actually exists, include in stats
+			if ( file_exists( $file_path ) ) { // If the file actually exists, include in stats.
 				$download_data['count']++;
 				$download_data['count_incl_int']++;
 				$this_file_size = @filesize( $file_path );
@@ -1204,7 +1204,7 @@ function jabd_request_download() {
 					foreach ( $int_sizes as $size ) {
 						if ( $int_image_data = image_get_intermediate_size( $permitted_file->ID, $size ) ) {
 							$download_data['count_incl_int']++;
-							$int_filepath = false === strpos( $int_image_data['path'], $upload_dir_info['basedir'] ) ? $upload_dir_info['basedir'].'/'.$int_image_data['path'] : $int_image_data['path'];
+							$int_filepath = false === strpos( $int_image_data['path'], $upload_dir_info['basedir'] ) ? $upload_dir_info['basedir'] . '/' . $int_image_data['path'] : $int_image_data['path'];
 							$download_data['size_incl_int'] += @filesize( $int_filepath );
 						}
 					}
@@ -1213,13 +1213,13 @@ function jabd_request_download() {
 			
 		}
 		
-		// if we have files to assess
+		// If we have files to assess...
 		if ( $download_data['count'] > 0 ) {
 			
 			$settings = get_option( 'jabd_options' );
 			$max_file_size = apply_filters( 'jabd_max_files_size', ( isset( $settings['jabd_max_size'] ) ? $settings['jabd_max_size'] : 100 ) );
 			
-			// check where we are relative to the file limit
+			// Check where we are relative to the file limit.
 			if ( ( $download_data['size'] / 1000000 ) > $max_file_size ) {
 				$under_file_limit = false;
 			} elseif( ( $download_data['size_incl_int'] / 1000000 ) > $max_file_size ) {
@@ -1237,7 +1237,7 @@ function jabd_request_download() {
 				}
 				
 				/* translators: Number of files */
-				$file_info = '<div>'.sprintf( __( 'Files: %s','bulk-attachment-download' ), $download_data_display['count'] );
+				$file_info = '<div>' . sprintf( __( 'Files: %s','bulk-attachment-download' ), $download_data_display['count'] );
 				if ( $download_data['count_incl_int'] > $download_data['count'] ) {
 					/* translators: Number of files */
 					$file_info .= sprintf( __( ' (%s if intermediate sizes included)' ,'bulk-attachment-download' ), $download_data_display['count_incl_int'] );
@@ -1250,7 +1250,7 @@ function jabd_request_download() {
 				}
 				$file_info .= '</div>';
 				
-				$download_btn_html = '<button id="jabd-create-download" type="button" class="button button-primary button-large">'.__( 'Create download', 'bulk-attachment-download' ).'</button>&nbsp; ';
+				$download_btn_html = '<button id="jabd-create-download" type="button" class="button button-primary button-large">' . __( 'Create download', 'bulk-attachment-download' ) . '</button>&nbsp; ';
 				
 				$incl_int_sizes_default = isset( $settings['jabd_int_sizes'] ) ? $settings['jabd_int_sizes'] : 0;
 				$jabd_no_folders = isset( $settings['jabd_no_folders'] ) ? $settings['jabd_no_folders'] : 0;
@@ -1258,7 +1258,7 @@ function jabd_request_download() {
 				$results_message =
 '<div class="jabd-popup-text-block">
 	<strong>'.__( 'File info', 'bulk-attachment-download' ).'</strong>
-	'.$file_info.'
+	' . $file_info . '
 </div>';
 
 				//give warning if we are over the file limit
@@ -1266,18 +1266,18 @@ function jabd_request_download() {
 					$download_btn_html = '';
 					$results_message .=
 '<div class="jabd-popup-text-block" style="color: red">
-	'.sprintf (
+	' . sprintf (
 	/* translators: File size limit in MB */	
 		__( 'Your selected files exceed the limit of %sMB', 'bulk-attachment-download' ), $max_file_size
-	).'
+	) . '
 </div>';
 				} elseif ( ! $under_int_file_limit ) {
 					$results_message .=
 '<div class="jabd-popup-text-block" style="color: red">
-	'.sprintf (
+	' . sprintf (
 		/* translators: File size limit in MB */
 		__( 'Downloading intermediate sizes will exceed limit of %sMB', 'bulk-attachment-download' ), $max_file_size
-	).'
+	) . '
 </div>';
 				}
 				
@@ -1285,18 +1285,18 @@ function jabd_request_download() {
 				
 					$results_message .=
 '<div class="jabd-popup-text-block">
-	<strong>'.__( 'Options', 'bulk-attachment-download' ).'</strong><br />
-	<div'.( $under_int_file_limit ? '' : ' style="color: grey"' ).'>
-		<input id="jabd-int-sizes-chkbox" type="checkbox" '.( $under_int_file_limit ? checked( $incl_int_sizes_default, true, false ) : 'style="cursor: default" disabled' ).'/>
-		<label'.( $under_int_file_limit ? '' : ' style="cursor: default"' ).' for="jabd-int-sizes-chkbox">'.__( 'Include image intermediate sizes', 'bulk-attachment-download' ).'</label><br />
+	<strong>' . __( 'Options', 'bulk-attachment-download' ) . '</strong><br />
+	<div' . ( $under_int_file_limit ? '' : ' style="color: grey"' ) . '>
+		<input id="jabd-int-sizes-chkbox" type="checkbox" ' . ( $under_int_file_limit ? checked( $incl_int_sizes_default, true, false ) : 'style="cursor: default" disabled' ) . '/>
+		<label' . ( $under_int_file_limit ? '' : ' style="cursor: default"' ).' for="jabd-int-sizes-chkbox">'.__( 'Include image intermediate sizes', 'bulk-attachment-download' ) . '</label><br />
 	</div>
 	<div>
-		<input id="jabd-no-folder-chkbox" type="checkbox" '.checked( $jabd_no_folders, true, false ).'/>
-		<label for="jabd-no-folder-chkbox">'.__( 'Single folder download (any duplicate filenames will be amended)', 'bulk-attachment-download' ).'</label>
+		<input id="jabd-no-folder-chkbox" type="checkbox" ' . checked( $jabd_no_folders, true, false ) . '/>
+		<label for="jabd-no-folder-chkbox">' . __( 'Single folder download (any duplicate filenames will be amended)', 'bulk-attachment-download' ) . '</label>
 	</div>
 </div>
 <div class="jabd-popup-msg">
-	<span>'.__( 'Download title (optional)', 'bulk-attachment-download' ).'&nbsp;</span>
+	<span>' . __( 'Download title (optional)', 'bulk-attachment-download' ) . '&nbsp;</span>
 	<input type="text" />
 </div>';
 
@@ -1304,7 +1304,7 @@ function jabd_request_download() {
 						if ( $settings['jabd_pwd_downloads'] ) {
 							$results_message .= '
 <div class="jabd-popup-msg">
-	<span>'.__( 'Password (optional)', 'bulk-attachment-download' ).'&nbsp;</span>
+	<span>' . __( 'Password (optional)', 'bulk-attachment-download' ) . '&nbsp;</span>
 	<input id="zipfile-password" type="text" />
 </div>';
 						}					
@@ -1312,29 +1312,29 @@ function jabd_request_download() {
 				}
 
 				$results_message .=
-	'<div class="jabd-popup-buttons">'.$download_btn_html.jabd_close_popup_btn( __( 'Cancel', 'bulk-attachment-download' ) ).'</div>';
+	'<div class="jabd-popup-buttons">' . $download_btn_html . jabd_close_popup_btn( __( 'Cancel', 'bulk-attachment-download' ) ) . '</div>';
 
 				$ajax_result = array( 'messages' => $results_message );
 		
-			//now create download if we are downloading
-			} elseif ( 'download' == $doaction && empty( $permissions_errors ) && $under_file_limit ) { //downloading
+			// Now create download if we are downloading.
+			} elseif ( 'download' == $doaction && empty( $permissions_errors ) && $under_file_limit ) { // ...if downloading...
 				
-				// create downloads dir if necessary
-				if ( ! file_exists( JABD_UPLOADS_DIR.JABD_DOWNLOADS_DIR ) ) {
-					mkdir( JABD_UPLOADS_DIR.JABD_DOWNLOADS_DIR, 0755 );
+				// Create downloads dir if necessary.
+				if ( ! file_exists( JABD_UPLOADS_DIR . JABD_DOWNLOADS_DIR ) ) {
+					mkdir( JABD_UPLOADS_DIR . JABD_DOWNLOADS_DIR, 0755 );
 				}
 				
-				// create user folder if necessary
+				// Create user folder if necessary.
 				$user_id = get_current_user_id();
-				$zip_dir = JABD_UPLOADS_DIR.JABD_DOWNLOADS_DIR.'/'.$user_id;
+				$zip_dir = JABD_UPLOADS_DIR.JABD_DOWNLOADS_DIR . '/' . $user_id;
 				if ( ! file_exists( $zip_dir ) ) {
 					mkdir( $zip_dir, 0755 );
 				}
 				
-				//sanitize data
+				// Sanitize data.
 				$post_title = sanitize_text_field( $_POST['title'] );
 				
-				//work out whether we are downloading intermediate sizes and whether we are retaining folder structure
+				// Work out whether we are downloading intermediate sizes and whether we are retaining folder structure.
 				if ( ! $under_int_file_limit ) {
 					$incl_int_sizes = false;
 				} else {
@@ -1342,17 +1342,17 @@ function jabd_request_download() {
 				}
 				$no_folders = 'true' == sanitize_text_field( $_POST['nofolders'] ) ? true : false;
 
-				// create a unique name based on the user title if provided
+				// Create a unique name based on the user title if provided.
 				if ( empty( $post_title ) ) {
 					$post_title = uniqid();
 				}
 				$zip_name = sanitize_file_name( $post_title );
 				$name_count = 0;
-				while ( file_exists( $zip_dir.'/'.$zip_name.($name_count > 0 ? $name_count : '').'.zip' ) ) {
+				while ( file_exists( $zip_dir . '/' . $zip_name . ($name_count > 0 ? $name_count : '') . '.zip' ) ) {
 					$name_count++;
 				}
-				$rel_zip_path = $user_id.'/'.$zip_name.( $name_count > 0 ? $name_count : '' ).'.zip';
-				$zip_path = JABD_UPLOADS_DIR.JABD_DOWNLOADS_DIR.'/'.$rel_zip_path;
+				$rel_zip_path = $user_id . '/' . $zip_name.( $name_count > 0 ? $name_count : '' ) . '.zip';
+				$zip_path = JABD_UPLOADS_DIR . JABD_DOWNLOADS_DIR . '/' . $rel_zip_path;
 				if ( $name_count > 0 ) {
 					$post_title .= $name_count;
 				}
@@ -1368,7 +1368,7 @@ function jabd_request_download() {
 				}
 				$zip_pword = apply_filters( 'jabd_zip_password', $zip_pword );
 				
-				// create the zip file
+				// Create the zip file.
 				if ( class_exists( 'ZipArchive' ) ) {
 					
 					$zip = new ZipArchive();
@@ -1384,20 +1384,20 @@ function jabd_request_download() {
 						
 						$added_rel_filepaths = array();
 						
-						// add the files to the zip
+						// Add the files to the zip.
 						foreach ( $permitted_files as $permitted_file ) {
 							$file_path = get_attached_file( $permitted_file->ID, true );
 
-							if ( file_exists( $file_path ) ) { // if the file actually exists, add it to the zip file
+							if ( file_exists( $file_path ) ) { // If the file actually exists, add it to the zip file.
 								
 								if ( $no_folders ) {
 									
-									//just use filename for relative file path
+									// Just use filename for relative file path.
 									$relative_file_path = wp_basename( $file_path );
 									
 								} else {
 								
-									// attempt to work out the path relative to the uploads folder
+									// Attempt to work out the path relative to the uploads folder.
 									$relative_file_path = jabd_file_path_rel_to_uploads( $file_path, $permitted_file, $upload_dir_info['basedir'] );
 									
 								}
@@ -1406,7 +1406,7 @@ function jabd_request_download() {
 
 							}
 							
-							// add in intermediate sizes if required
+							// Add in intermediate sizes if required.
 							if ( $incl_int_sizes && wp_attachment_is_image( $permitted_file->ID ) ) {
 								$int_sizes = get_intermediate_image_sizes();
 								if ( ! empty( $int_sizes ) ) {
@@ -1415,11 +1415,11 @@ function jabd_request_download() {
 											
 											$int_file_path = $int_image_data['path'];
 
-											// work out relative and full filepaths
-											if ( strpos( $int_file_path, $upload_dir_info['basedir'] ) === false ) { // path is relative
+											// Work out relative and full filepaths.
+											if ( strpos( $int_file_path, $upload_dir_info['basedir'] ) === false ) { // If path is relative...
 												$int_rel_filepath = $no_folders ? wp_basename( $int_file_path ) : $int_file_path;
 												$int_file_path = $upload_dir_info['basedir'].'/'.$int_file_path;
-											} else { //path is full
+											} else { // ...otherwise path is full...
 												if ( $no_folders ) {
 													$int_rel_filepath = wp_basename( $int_file_path );
 												} else {
@@ -1436,12 +1436,12 @@ function jabd_request_download() {
 							
 						}
 
-						// close the zip
+						// Close the zip.
 						$zip->close();
 						
 						if ( file_exists( $zip_path ) ) {
 						
-							// create the download post
+							// Create the download post.
 							date_default_timezone_set( 'UTC' );
 
 							$meta_input = array(
@@ -1466,32 +1466,32 @@ function jabd_request_download() {
 								'meta_input'	=> $meta_input
 							) );
 							
-							$results_msg = '<div class="jabd-popup-msg"><span>'.__( 'Download created!', 'bulk-attachment-download' ).'</span></div>';
-							$results_view_btn = '<a href = "'.admin_url( 'edit.php?post_type=jabd_download' ).'"><button class="button button-primary button-large">'.__( 'View', 'bulk-attachment-download' ).'</button></a>&nbsp; ';
-							$results_close_btn = '<button id="jabd-close-download-popup" class="button button-primary button-large">'.__( 'Close', 'bulk-attachment-download' ).'</button>';
-							$results_btns = '<div class="jabd-popup-buttons">'.$results_view_btn.$results_close_btn.'</div>';
+							$results_msg = '<div class="jabd-popup-msg"><span>' . __( 'Download created!', 'bulk-attachment-download' ) . '</span></div>';
+							$results_view_btn = '<a href = "' . admin_url( 'edit.php?post_type=jabd_download' ) . '"><button class="button button-primary button-large">' . __( 'View', 'bulk-attachment-download' ) . '</button></a>&nbsp; ';
+							$results_close_btn = '<button id="jabd-close-download-popup" class="button button-primary button-large">' . __( 'Close', 'bulk-attachment-download' ) . '</button>';
+							$results_btns = '<div class="jabd-popup-buttons">' . $results_view_btn.$results_close_btn . '</div>';
 							
 							$ajax_result = array(
 								'messages'	=> $results_msg.$results_btns
 							);
 						
-						} else { //zip file does not exist
+						} else { // ...zip file does not exist...
 							$permissions_errors[] = __( 'Error. Your download could not be created.', 'bulk-attachment-download' );
 						}
 						
-					} else { // zip file could not be created
+					} else { // ...zip file could not be created...
 						$permissions_errors[] = __( 'Error. Your download could not be created.', 'bulk-attachment-download' );
 					}
 					
-				} else { // ziparchive class not found
+				} else { // ...ziparchive class not found...
 					$permissions_errors[] = __( 'Error. Your download could not be created. It looks like you don\'t have ZipArchive installed on your server.', 'bulk-attachment-download' );
 				}
 				
-			} else { // no action specified in ajax posted data
+			} else { // ...no action specified in ajax posted data...
 				$permissions_errors[] = __( 'Error. Your download could not be created.', 'bulk-attachment-download' );
 			}
 			
-		} else { // no valid files selected
+		} else { // ...no valid files selected...
 			$permissions_errors[] = __( 'Error. No files selected that you are permitted to download.', 'bulk-attachment-download' );
 		}
 
@@ -1499,7 +1499,7 @@ function jabd_request_download() {
 	
 	if ( ! empty( $permissions_errors ) ) {
 		
-		$results_msg = '<div class="jabd-popup-msg"><span>'.$permissions_errors[0].'</span></div>';
+		$results_msg = '<div class="jabd-popup-msg"><span>' . $permissions_errors[0] . '</span></div>';
 		
 		$ajax_result = array(
 			'messages'	=> $results_msg.jabd_close_popup_btn( __( 'Close', 'bulk-attachment-download' ) )
@@ -1507,25 +1507,25 @@ function jabd_request_download() {
 		
 	}
 	
-	// send response
+	// Send response.
 	echo wp_json_encode( $ajax_result );
 	wp_die();
 	
 }
 
 /**
- * Add file to zip making sure filename is unique
+ * Add file to zip making sure filename is unique.
  */
 function jabd_add_file_to_zip( $zip, $file_path, $relative_file_path, $added_rel_filepaths, $zip_pword ) {
 	
-	// if there is another file with the same name in the zip file already then amend filename
+	// If there is another file with the same name in the zip file already then amend filename.
 	$relative_file_path = jabd_unique_filepath_in_filepaths_array( $relative_file_path, $added_rel_filepaths );
 	
-	// add the file using the relative file path
+	// Add the file using the relative file path.
 	if ( $zip->addFile( $file_path, $relative_file_path ) ) {
 		$added_rel_filepaths[] = $relative_file_path;
 		
-		// encrypt if password-protected
+		// Encrypt if password-protected.
 		if ( $zip_pword ) {
 			$file_encrypted = $zip->setEncryptionName( $relative_file_path, ZipArchive::EM_AES_256 );
 		}
@@ -1536,40 +1536,40 @@ function jabd_add_file_to_zip( $zip, $file_path, $relative_file_path, $added_rel
 }
 
 /**
- * Generate html for a close popup button
+ * Generate html for a close popup button.
  */
 function jabd_close_popup_btn( $btn_text ) {
-	return '<button id="jabd-close-download-popup" class="button button-primary button-large">'.$btn_text.'</button>';
+	return '<button id="jabd-close-download-popup" class="button button-primary button-large">' . $btn_text . '</button>';
 }
 
 /**
- * Delete zip file on deletion of download post by user
+ * Delete zip file on deletion of download post by user.
  */
 function jabd_delete_download_zip( $post_id ) {
-	if ( $zip_path = JABD_UPLOADS_DIR.JABD_DOWNLOADS_DIR.'/'.get_post_meta( $post_id, 'jabd_path', true ) ) {
+	if ( $zip_path = JABD_UPLOADS_DIR.JABD_DOWNLOADS_DIR . '/' . get_post_meta( $post_id, 'jabd_path', true ) ) {
 		if ( file_exists( $zip_path ) ) {
 			@unlink( $zip_path );
 		}
-		// delete user folder if empty
-		@rmdir( str_replace( '/'.wp_basename( $zip_path ), '', $zip_path ) );
+		// Delete user folder if empty.
+		@rmdir( str_replace( '/' . wp_basename( $zip_path ), '', $zip_path ) );
 	}
 }
 
 /**
- * Returns a unique filepath by checking against an array of filepaths
+ * Returns a unique filepath by checking against an array of filepaths.
  */
 function jabd_unique_filepath_in_filepaths_array( $relative_file_path, $added_rel_filepaths ) {
 	$count = -1;
 	do {
 		$count++;
 		$path_and_ext = jabd_split_filepath_and_ext( $relative_file_path );
-		$relative_file_path = $path_and_ext['path'].( $count > 0 ? $count : '' ).$path_and_ext['ext'];
+		$relative_file_path = $path_and_ext['path'] . ( $count > 0 ? $count : '' ) . $path_and_ext['ext'];
 	} while ( in_array( $relative_file_path, $added_rel_filepaths ) );
 	return $relative_file_path;
 }
 
 /**
- * Returns filepath and extension
+ * Returns filepath and extension.
  */
 function jabd_split_filepath_and_ext( $filepath ) {
 	$dotpos = strrpos( $filepath, '.' );
@@ -1584,20 +1584,20 @@ function jabd_split_filepath_and_ext( $filepath ) {
 }
 
 /**
- * Attempt to work out path of attachment relative to upload folder
+ * Attempt to work out path of attachment relative to upload folder.
  * @return relative path (excluding leading slash) if found, false if not
  */
 function jabd_file_path_rel_to_uploads( $file_path, $attachment, $upload_basedir ) {
-	// if no match return false
+	// If no match return false...
 	if ( false === strpos( $file_path, $upload_basedir ) ) {
 		return false;
 	}
-	// otherwise return relative path
-	return apply_filters( 'jabd_file_path_rel_to_uploads', str_replace( $upload_basedir.'/', '', $file_path ), $attachment );
+	// ...otherwise return relative path.
+	return apply_filters( 'jabd_file_path_rel_to_uploads', str_replace( $upload_basedir . '/', '', $file_path ), $attachment );
 }
 
 /**
- * Converts filesize in bytes to human readable form
+ * Converts filesize in bytes to human readable form.
  */
 function jabd_human_filesize( $bytes, $decimals = 2 ) {
 	$sz = 'KMGTP';
