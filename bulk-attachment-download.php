@@ -47,7 +47,7 @@ Bulk_Attachment_Download_Admin_Notice_Manager::init( array(
 add_action( 'plugins_loaded', 'jabd_load_plugin_textdomain' );
 
 /*--------------------------------------------------------------------------------------------------*/
-/*Code for integration with Freemius functionality (https://freemius.com/wordpress/insights/)*/
+/* Code for integration with Freemius functionality (https://freemius.com/wordpress/insights/) */
 
 if ( ! function_exists( 'jabd_fs' ) ) {
     // Create a helper function for easy SDK access.
