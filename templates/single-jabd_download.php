@@ -6,6 +6,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 	die;
 }
 
+/**
+ * Redirects to 404 (called if download file does not exist or user does not have permission to download).
+ */
+function jabd_404_redirect() {
+	global $wp_query;
+	$wp_query->set_404();
+	status_header( 404 );
+	get_template_part( 404 );
+	exit();
+}
+
 // provide file to download if permissions checks passed
 global $post;
 if ( current_user_can( 'edit_post', $post->ID ) ) {
