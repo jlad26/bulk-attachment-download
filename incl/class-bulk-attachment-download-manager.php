@@ -1159,7 +1159,7 @@ class Bulk_Attachment_Download_Manager {
 	/**
 	 * Increments download count stored in options and adds request notice if appropriate.
 	 */
-	function increment_download_count() {
+	public static function increment_download_count() {
 		$options = get_option( 'jabd_storage' );
 		if ( isset( $options['download_count'] ) ) {
 			$options['download_count']++;
@@ -1167,6 +1167,17 @@ class Bulk_Attachment_Download_Manager {
 			$options['download_count'] = 1;
 		}
 		update_option( 'jabd_storage', $options );
+	}
+
+	/**
+	 * Redirects to 404 (called if download file does not exist or user does not have permission to download).
+	 */
+	public static function redirect_404() {
+		global $wp_query;
+		$wp_query->set_404();
+		status_header( 404 );
+		get_template_part( 404 );
+		exit();
 	}
 
 	/*---------------------------------------------------------------------------------------------------------*/
