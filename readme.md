@@ -85,9 +85,10 @@ but if you wanted to set the file size per user you could use this filter.
 
 ### 1.3.1
 
-Release date: 3 January 2021
+Release date: 4 January 2021
 
 * Enhancement: Enable bulk downloading for the Media Library Grid mode.
+* Maintenance: Refactoring code into a plugin class.
 
 ### 1.3.0
 
