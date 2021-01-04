@@ -23,7 +23,7 @@ class Bulk_Attachment_Download_Manager {
 	/**
 	 * Register all actions and filters.
 	 */
-	public function init_hooks() {
+	private function init_hooks() {
 
 		/*---------------------------------------------------------------------------------------------------------*/
 		/* Plugin settings */
@@ -88,8 +88,10 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Internationalization
+	 * 
+	 * @hooked	plugins_loaded
 	 */
-	function load_plugin_textdomain() {
+	public function load_plugin_textdomain() {
 		load_plugin_textdomain( 'bulk-attachment-download', FALSE, basename( JABD_PLUGIN_DIR ) . '/languages/' );
 	}
 
@@ -98,8 +100,11 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Load admin js and css.
+	 * 
+	 * @param	string	$hook	current admin page
+	 * @hooked	admin_enqueue_scripts
 	 */
-	function admin_enqueue_scripts( $hook ) {
+	public function admin_enqueue_scripts( $hook ) {
 		
 		global $post;
 		
@@ -157,8 +162,10 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Plugin activation.
+	 * 
+	 * @hooked	activate_bulk-attachment-download/bulk-attachment-download.php
 	 */
-	function on_activation() {
+	public function on_activation() {
 		
 		if ( ! current_user_can( 'activate_plugins' ) ) {
 			return;
@@ -188,8 +195,10 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Plugin deactivation.
+	 * 
+	 * @hooked	deactivate_bulk-attachment-download/bulk-attachment-download.php
 	 */
-	function on_deactivation() {
+	public function on_deactivation() {
 		
 		if ( ! current_user_can( 'activate_plugins' ) ) {
 			return;
@@ -205,17 +214,19 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Delete expired download posts.
-	 * @hooked jabd_hourly_event
+	 * 
+	 * @hooked	jabd_hourly_event
 	 */
-	function delete_expired_download_posts() {
+	public function delete_expired_download_posts() {
 		$this->delete_download_posts( $only_expired = true );
 	}
 
 	/**
 	 * Delete download posts.
+	 * 
 	 * @param	bool	$only_expired	whether to delete only expired downloads
 	 */
-	function delete_download_posts( $only_expired = true ) {
+	private function delete_download_posts( $only_expired = true ) {
 		$download_posts = get_posts( array(
 			'post_type'			=> 'jabd_download',
 			'posts_per_page'	=> -1,
@@ -238,9 +249,10 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Run processes on upgrade and installation.
-	 * @hooked plugins_loaded
+	 * 
+	 * @hooked	plugins_loaded
 	 */
-	function check_version() {
+	public function check_version() {
 		$prev_version = get_option( 'jabd_version' );
 		if ( JABD_VERSION !== $prev_version ) {
 			update_option( 'jabd_version', JABD_VERSION );
@@ -256,9 +268,10 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Processes to be run on upgrade.
+	 * 
 	 * @param	string	$prev_version	Plugin version before upgrade
 	 */
-	function on_plugin_upgrade( $prev_version ) {
+	private function on_plugin_upgrade( $prev_version ) {
 
 		// Delete any hangover posts after moving downloads to uploads folder.
 		if (  1 == version_compare( '1.3.0', $prev_version ) ) {
@@ -293,7 +306,7 @@ class Bulk_Attachment_Download_Manager {
 	/**
 	 * Processes to be run on installation.
 	 */
-	function on_plugin_installation() {
+	private function on_plugin_installation() {
 
 		/**
 		 * Remove deprecated options and usermeta from db since these may have been present from
@@ -328,7 +341,7 @@ class Bulk_Attachment_Download_Manager {
 	/**
 	 * Define uploads dir.
 	 */
-	function define_uploads_folder() {
+	public function define_uploads_folder() {
 		$uploads_dir_info = wp_upload_dir();
 		if ( $uploads_dir_info['error'] ) {
 			add_action( 'admin_init', array( $this, 'upload_dir_error_notice' ) );
@@ -339,8 +352,10 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Set an error message that uploads dir is inaccessible.
+	 * 
+	 * @hooked	admin_init
 	 */
-	function upload_dir_error_notice() {
+	public function upload_dir_error_notice() {
 		$uploads_dir_info = wp_upload_dir();
 		$message = '<strong>' . __( 'Error', 'bulk-attachment-download' ) . ':</strong> ';
 		/* translators: Plugin name */
@@ -365,9 +380,10 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Initialize plugin settings.
-	 * @hooked admin_init
+	 * 
+	 * @hooked	admin_init
 	 */
-	function init_settings() {
+	public function init_settings() {
 		
 		// Register a new setting for "Media" page.
 		register_setting( 'media', 'jabd_options', array(
@@ -513,7 +529,7 @@ class Bulk_Attachment_Download_Manager {
 	/**
 	 * Output the guidance section.
 	 */
-	function guidance_section() {
+	public function guidance_section() {
 		
 		$output_html = '<div class="jabd-guidance-container"><h4><span class="hide-if-js">' . __( 'Guidance', 'bulk-attachment-download' ) . '</span>';
 		$output_html .= '<button type="button" class="hide-if-no-js jabd-link-button jabd-guidance-link">';
@@ -550,8 +566,10 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Output the max uncompressed file size settings field.
+	 * 
+	 * @param	array	$args	arguments used when outputting the field.
 	 */
-	function max_size_input( $args ) {
+	public function max_size_input( $args ) {
 		$options = get_option( 'jabd_options' );
 		$option = 100;
 		if ( isset( $options['jabd_max_size'] ) ) {
@@ -567,8 +585,10 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Output the default intermediate sizes settings field.
+	 * 
+	 * @param	array	$args	arguments used when outputting the field.
 	 */
-	function int_sizes_default_cb( $args ) {
+	public function int_sizes_default_cb( $args ) {
 		$options = get_option( 'jabd_options' );
 		$option = isset( $options['jabd_int_sizes'] ) ? $options['jabd_int_sizes'] : 0;
 		?>
@@ -579,8 +599,10 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Output the default single folder settings field.
+	 * 
+	 * @param	array	$args	arguments used when outputting the field.
 	 */
-	function single_folder_default_cb( $args ) {
+	public function single_folder_default_cb( $args ) {
 		$options = get_option( 'jabd_options' );
 		$option = isset( $options['jabd_no_folders'] ) ? $options['jabd_no_folders'] : 0;
 		?>
@@ -591,8 +613,10 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Output the disable auto deletion settings field.
+	 * 
+	 * @param	array	$args	arguments used when outputting the field.
 	 */
-	function disable_auto_delete_cb( $args ) {
+	public function disable_auto_delete_cb( $args ) {
 		$options = get_option( 'jabd_options' );
 		$option = isset( $options['jabd_disable_auto_delete'] ) ? $options['jabd_disable_auto_delete'] : 0;
 		?>
@@ -603,8 +627,10 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Output the optional password settings field.
+	 * 
+	 * @param	array	$args	arguments used when outputting the field.
 	 */
-	function pwd_downloads_cb( $args ) {
+	public function pwd_downloads_cb( $args ) {
 		$options = get_option( 'jabd_options' );
 		$option = isset( $options['jabd_pwd_downloads'] ) ? $options['jabd_pwd_downloads'] : 0;
 		?>
@@ -615,8 +641,10 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Output the store passwords settings field.
+	 * 
+	 * @param	array	$args	arguments used when outputting the field.
 	 */
-	function store_pwds_cb( $args ) {
+	public function store_pwds_cb( $args ) {
 		$options = get_option( 'jabd_options' );
 		$option = isset( $options['jabd_store_pwds'] ) ? $options['jabd_store_pwds'] : 0;
 		$description = __( 'Whether to store passwords set on zip files. Stored passwords are displayed in the Downloads table.', 'bulk-attachment-download' );
@@ -631,8 +659,10 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Output the default password settings field.
+	 * 
+	 * @param	array	$args	arguments used when outputting the field.
 	 */
-	function default_pwd( $args ) {
+	public function default_pwd( $args ) {
 		$options = get_option( 'jabd_options' );
 		$option = isset( $options['jabd_default_pwd'] ) ? $options['jabd_default_pwd'] : '';
 		?>
@@ -643,8 +673,10 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Output section explaining that password protection is not available.
+	 * 
+	 * @param	array	$args	arguments used when outputting the field.
 	 */
-	function no_encryption( $args ) {
+	public function no_encryption( $args ) {
 		?>
 		<p class="description"><?php _e( 'Password protection options are not available, most likely because your server is running a version of PHP older than 7.2. The option to store and view passwords below remains active only in case passwords have been stored in the past.', 'bulk-attachment-download' ); ?></p>
 		<?php
@@ -652,8 +684,10 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Output the secure download settings field.
+	 * 
+	 * @param	array	$args	arguments used when outputting the field.
 	 */
-	function secure_downloads_cb( $args ) {
+	public function secure_downloads_cb( $args ) {
 		$options = get_option( 'jabd_options' );
 		$option = isset( $options['jabd_secure_downloads'] ) ? $options['jabd_secure_downloads'] : 0;
 		?>
@@ -664,8 +698,10 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Output the delete on uninstall settings field.
+	 * 
+	 * @param	array	$args	arguments used when outputting the field.
 	 */
-	function delete_on_uninstall_cb( $args ) {
+	public function delete_on_uninstall_cb( $args ) {
 		$options = get_option( 'jabd_options' );
 		$option = isset( $options['jabd_delete_on_uninstall'] ) ? $options['jabd_delete_on_uninstall'] : 0;
 		?>
@@ -676,8 +712,11 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Sanitize the settings before saving.
+	 * 
+	 * @param	array	$settings	settings to be saved.
+	 * @return	array	sanitized settings
 	 */
-	function sanitize_options( $settings ) {
+	public function sanitize_options( $settings ) {
 		
 		if ( ! empty( $settings ) ) {
 			foreach ( $settings as $key => $setting ) {
@@ -709,9 +748,14 @@ class Bulk_Attachment_Download_Manager {
 	/**
 	 * Add / remove htaccess file as necessary when "Make downloads secure" option is updated, and
 	 * add/ remove automatic cron event for deletion of downloads.
-	 * @hooked pre_update_option_jabd_options
+	 * 
+	 * @param	mixed	$value		new value to be stored (unserialized)
+	 * @param	mixed	$old_value	old option value
+	 * @param	string	$option		option name
+	 * @return	mixed	option value to be stored
+	 * @hooked	pre_update_option_jabd_options
 	 */
-	function before_options_update( $value, $old_value, $option ) {
+	public function before_options_update( $value, $old_value, $option ) {
 
 		if ( 'jabd_options' != $option ) {
 			return false;
@@ -752,11 +796,12 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Create / overwrite .htaccess file.
-	 * @param	int		$value		new setting value
-	 * @param	int		$old_value	old setting value
+	 * 
+	 * @param	int		$value		new setting value (1 or 0)
+	 * @param	int		$old_value	old setting value (1 or 0)
 	 * @return	int		returns value set to old value if failure
 	 */
-	function create_htaccess( $value, $old_value ) {
+	private function create_htaccess( $value, $old_value ) {
 
 		// Create downloads dir if necessary.
 		if ( ! file_exists( JABD_UPLOADS_DIR . JABD_DOWNLOADS_DIR ) ) {
@@ -783,7 +828,7 @@ class Bulk_Attachment_Download_Manager {
 				$args = array(
 					'id'			=>	'htaccess_permissions_error',
 					/* translators: Filepath to .htaccess file */
-					'message'		=>	JABD_PLUGIN_NAME . ': ' . sprintf( __( 'The .htaccess file has been created to prevent access to downloads. However the plugin could not confirm that permissions have been correctly set on the .htaccess file itself, which is a security risk. Please confirm that permissions on the file have been set to 0644 - it can be found at %s.', 'bulk-attachment-download' ), $disp_htaccess_path ),
+					'message'		=>	'<strong>' . JABD_PLUGIN_NAME . ':</strong> ' . sprintf( __( 'The .htaccess file has been created to prevent access to downloads. However the plugin could not confirm that permissions have been correctly set on the .htaccess file itself, which is a security risk. Please confirm that permissions on the file have been set to 0644 - it can be found at %s.', 'bulk-attachment-download' ), $disp_htaccess_path ),
 					'type'			=>	'warning',
 					'screen_ids'	=>	array( 'options-media' ),
 					'persistent'	=>	true,
@@ -800,11 +845,12 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Remove .htaccess file.
-	 * @param	int		$value		new setting value
-	 * @param	int		$old_value	old setting value
+	 * 
+	 * @param	int		$value		new setting value (1 or 0)
+	 * @param	int		$old_value	old setting value (1 or 0)
 	 * @return	int		returns value set to old value if failure
 	 */
-	function remove_htaccess( $value, $old_value ) {
+	private function remove_htaccess( $value, $old_value ) {
 
 		$htaccess_path = JABD_UPLOADS_DIR . JABD_DOWNLOADS_DIR . '/.htaccess';
 					
@@ -814,7 +860,7 @@ class Bulk_Attachment_Download_Manager {
 				$args = array(
 					'id'		=>	'no_htaccess_delete',
 					/* translators: Filepath to .htaccess file */
-					'message'	=>	JABD_PLUGIN_NAME . ': ' . sprintf( __( 'The .htaccess file preventing direct access to your downloads could not be deleted. Please delete the file manually and then unset the Make downloads secure setting again. The file can be found at %s. Alternatively you may uninstall and re-install the plugin.', 'bulk-attachment-download' ), $disp_htaccess_path ),
+					'message'	=>	'<strong>' . JABD_PLUGIN_NAME . ':</strong> ' . sprintf( __( 'The .htaccess file preventing direct access to your downloads could not be deleted. Please delete the file manually and then unset the Make downloads secure setting again. The file can be found at %s. Alternatively you may uninstall and re-install the plugin.', 'bulk-attachment-download' ), $disp_htaccess_path ),
 					'screen_ids'	=>	array( 'options-media' ),
 					'persistent'	=>	true
 				);
@@ -834,9 +880,13 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Add settings and guidance link to description on plugins page.
+	 * 
+	 * @param	array	$links		plugin metadata
+	 * @param	string	$file		path to the plugin file relative to the plugins directory
+	 * @return	array	plugin metadata
 	 * @hooked plugin_row_meta
 	 */
-	function plugin_row_meta( $links, $file ) {
+	public function plugin_row_meta( $links, $file ) {
 		
 		if ( strpos( $file, 'bulk-attachment-download.php' ) !== false ) {
 			$new_links = array(
@@ -855,9 +905,10 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Add no js error admin notices to Plugins page, Media settings, Media page, and Bulk Downloads page.
-	 * @hooked admin_notices
+	 * 
+	 * @hooked	admin_notices
 	 */
-	function no_js_error_notice() {
+	public function no_js_error_notice() {
 
 		if ( function_exists( 'get_current_screen' ) ) {
 			$screen = get_current_screen();
@@ -877,9 +928,10 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Add opt out admin notices.
-	 * @hooked admin_init
+	 * 
+	 * @hooked	admin_init
 	 */
-	function add_opt_out_notices() {
+	public function add_opt_out_notices() {
 		
 		$opt_out_notices = array(
 			'number_of_media_items'	=>	array(
@@ -967,9 +1019,13 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Check conditions for display of admin notice.
-	 * @hooked jabd_display_opt_out_notice
+	 * 
+	 * @param	bool	$display	whether to display admin notice
+	 * @param	array	$notice		array of notice data
+	 * @return	bool	whether to display admin notice
+	 * @hooked	jabd_display_opt_out_notice
 	 */
-	function conditional_display_admin_notice( $display, $notice ) {
+	public function conditional_display_admin_notice( $display, $notice ) {
 
 		switch( $notice['id'] ) {
 			
@@ -988,9 +1044,11 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Prevent future rating request for a user because has either refused or has rated.
-	 * @hooked jabd_user_notice_dismissed_ratings_request_{$count_trigger}_prevent_rating_request
+	 * 
+	 * @param	int		$user_id	user id
+	 * @hooked	jabd_user_notice_dismissed_ratings_request_{$count_trigger}_prevent_rating_request
 	 */
-	function prevent_rating_request( $user_id ) {
+	public function prevent_rating_request( $user_id ) {
 		$options = get_option( 'jabd_storage' );
 		if ( ! isset( $options['no_rating_request'] ) ) {
 			$options['no_rating_request'] = array( $user_id );
@@ -1007,8 +1065,10 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Register download custom post type.
+	 * 
+	 * @hooked	init
 	 */
-	function register_download_post_type() {
+	public function register_download_post_type() {
 		
 		$labels = array(			
 			'name'					=> _x( 'Downloads', 'noun', 'bulk-attachment-download' ),
@@ -1066,8 +1126,10 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Prevent add new download action.
+	 * 
+	 * @hooked	load-post-new.php
 	 */
-	function prevent_add_new_download() {
+	public function prevent_add_new_download() {
 		if ( isset( $_GET['post_type'] ) ) {
 			if ( 'jabd_download' == $_GET['post_type'] ) {
 				wp_redirect( 'edit.php?post_type=jabd_download' );
@@ -1077,8 +1139,12 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Add columns to post list table.
+	 * 
+	 * @hooked	manage_jabd_download_posts_columns
+	 * @param	array	$columns	array of column headings
+	 * @return	array	array of column headings
 	 */
-	function add_link_columns( $columns ) {
+	public function add_link_columns( $columns ) {
 		foreach ( $columns as $key => $column ) {
 			$new_columns[ $key ] = $column;
 			if ( 'title' == $key ) {
@@ -1094,8 +1160,11 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Add columns content to post list table.
+	 * 
+	 * @hooked	manage_jabd_download_posts_custom_column
+	 * @param	string	$column		column name
 	 */
-	function add_link_columns_content( $column ) {
+	public function add_link_columns_content( $column ) {
 		global $post;
 		switch ( $column ) {
 			
@@ -1119,8 +1188,10 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Checks whether passwords are to be displayed in the Downloads table.
+	 * 
+	 * @return	bool	whether to display passwords
 	 */
-	function display_passwords() {
+	private function display_passwords() {
 		$options = get_option( 'jabd_options' );
 		$display_pwds = false;
 		if ( isset( $options['jabd_store_pwds'] ) ) {
@@ -1133,8 +1204,12 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Amend post updated message.
+	 * 
+	 * @hooked	post_updated_messages
+	 * @param	array	$messages	array of messages
+	 * @return	array	array of messages
 	 */
-	function post_updated_messages( $messages ) {
+	public function post_updated_messages( $messages ) {
 		global $post;
 		if ( 'jabd_download' == $post->post_type ) {
 			$messages['post'][1] = __( 'Download updated.', 'bulk-attachment-download' );
@@ -1147,9 +1222,12 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Template for download custom post type which delivers zip file.
-	 * @hooked single_template
+	 * 
+	 * @hooked	single_template
+	 * @param	string	$template	path to the template
+	 * @return	string	path to the template
 	 */
-	function download_template( $template ) {
+	public function download_template( $template ) {
 		if ( 'jabd_download' == get_post_type( get_queried_object_id() ) ) {
 			$template = JABD_PLUGIN_DIR . 'templates/single-jabd_download.php';
 		}
@@ -1184,10 +1262,12 @@ class Bulk_Attachment_Download_Manager {
 	/* Ajax functions */
 
 	/**
-	 * Handles ajax request.
-	 * Runs nonce checks, permissions checks, file size checks, and then creates download.
+	 * Handles ajax request. Runs nonce checks, permissions checks, file size checks, then creates download.
+	 * 
+	 * @hooked	wp_ajax_jabd_request_download
+	 * @return	array	array of data
 	 */
-	function request_download() {
+	public function request_download() {
 
 		$user_id = get_current_user_id();
 		
@@ -1525,7 +1605,7 @@ class Bulk_Attachment_Download_Manager {
 
 								$meta_input = array(
 									'jabd_path'		=> addslashes( $rel_zip_path ),
-									'jabd_expiry'	=> date( 'Y-m-d H:i:s', strtotime( '+2 hours' ) )
+									'jabd_expiry'	=> date( 'Y-m-d H:i:s', strtotime( '+1 hours' ) )
 								);
 
 								$store_pwd = false;
@@ -1551,7 +1631,7 @@ class Bulk_Attachment_Download_Manager {
 								$results_btns = '<div class="jabd-popup-buttons">' . $results_view_btn.$results_close_btn . '</div>';
 								
 								$ajax_result = array(
-									'messages'	=> $results_msg.$results_btns
+									'messages'	=> $results_msg . $results_btns
 								);
 							
 							} else { // ...zip file does not exist...
@@ -1594,8 +1674,15 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Add file to zip making sure filename is unique.
+	 * 
+	 * @param	ZipArchive	$zip					ZipArchive instance
+	 * @param	string		$filepath				path to attachment file
+	 * @param	string		$relative_file_path		path of attachment file relative to uploads folder
+	 * @param	array		$added_rel_filepaths	paths of attachment files relative to uploads folder
+	 * @param	string		$zip_pword				password
+	 * @return	array		paths of added files relative to uploads folder
 	 */
-	function add_file_to_zip( $zip, $file_path, $relative_file_path, $added_rel_filepaths, $zip_pword ) {
+	private function add_file_to_zip( $zip, $file_path, $relative_file_path, $added_rel_filepaths, $zip_pword ) {
 		
 		// If there is another file with the same name in the zip file already then amend filename.
 		$relative_file_path = $this->unique_filepath_in_filepaths_array( $relative_file_path, $added_rel_filepaths );
@@ -1616,15 +1703,21 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Generate html for a close popup button.
+	 * 
+	 * @param	string	$btn_text	button text
+	 * @return	string	button html
 	 */
-	function close_popup_btn( $btn_text ) {
+	private function close_popup_btn( $btn_text ) {
 		return '<button id="jabd-close-download-popup" class="button button-primary button-large">' . $btn_text . '</button>';
 	}
 
 	/**
 	 * Delete zip file on deletion of download post by user.
+	 * 
+	 * @hooked	before_delete_post
+	 * @param	int		$post_id	post ID
 	 */
-	function delete_download_zip( $post_id ) {
+	public function delete_download_zip( $post_id ) {
 		if ( $zip_path = JABD_UPLOADS_DIR.JABD_DOWNLOADS_DIR . '/' . get_post_meta( $post_id, 'jabd_path', true ) ) {
 			if ( file_exists( $zip_path ) ) {
 				@unlink( $zip_path );
@@ -1636,8 +1729,12 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Returns a unique filepath by checking against an array of filepaths.
+	 * 
+	 * @param	string	$relative_file_path		file path to check / amend
+	 * @param	array	$added_rel_filepaths	array of filepaths to check against
+	 * @return	string	unique filepath (either original or amended)
 	 */
-	function unique_filepath_in_filepaths_array( $relative_file_path, $added_rel_filepaths ) {
+	private function unique_filepath_in_filepaths_array( $relative_file_path, $added_rel_filepaths ) {
 		$count = -1;
 		do {
 			$count++;
@@ -1649,8 +1746,11 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Returns filepath and extension.
+	 * 
+	 * @param	string	$filepath	path
+	 * @return	array	array containing path and file extension
 	 */
-	function split_filepath_and_ext( $filepath ) {
+	private function split_filepath_and_ext( $filepath ) {
 		$dotpos = strrpos( $filepath, '.' );
 		if ( false === $dotpos ) {
 			$output['path'] = $filepath;
@@ -1664,9 +1764,10 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Attempt to work out path of attachment relative to upload folder.
-	 * @return relative path (excluding leading slash) if found, false if not
+	 * 
+	 * @return	string	relative path (excluding leading slash) if found, false if not
 	 */
-	function file_path_rel_to_uploads( $file_path, $attachment, $upload_basedir ) {
+	private function file_path_rel_to_uploads( $file_path, $attachment, $upload_basedir ) {
 		// If no match return false...
 		if ( false === strpos( $file_path, $upload_basedir ) ) {
 			return false;
@@ -1677,8 +1778,12 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Converts filesize in bytes to human readable form.
+	 * 
+	 * @param	int		$bytes		filesize in bytes
+	 * @param	int		$decimals	decimal places to round to
+	 * @return	string	filesize in appropriate units
 	 */
-	function human_filesize( $bytes, $decimals = 2 ) {
+	private function human_filesize( $bytes, $decimals = 2 ) {
 		$sz = 'KMGTP';
 		$factor = floor( ( strlen( $bytes ) - 1 ) / 3 );
 		return sprintf( "%.{$decimals}f", $bytes / pow( 1000, $factor ) ) . @$sz[ $factor - 1 ].'B';
@@ -1686,8 +1791,10 @@ class Bulk_Attachment_Download_Manager {
 
 	/**
 	 * Cleanup actions after uninstall.
+	 * 
+	 * @hooked	after_uninstall
 	 */
-	function fs_uninstall_cleanup() {
+	public function fs_uninstall_cleanup() {
 
 		if ( ! current_user_can( 'activate_plugins' ) ) {
 			return;
