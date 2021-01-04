@@ -1718,7 +1718,7 @@ class Bulk_Attachment_Download_Manager {
 	 * @param	int		$post_id	post ID
 	 */
 	public function delete_download_zip( $post_id ) {
-		if ( $zip_path = JABD_UPLOADS_DIR.JABD_DOWNLOADS_DIR . '/' . get_post_meta( $post_id, 'jabd_path', true ) ) {
+		if ( $zip_path = JABD_UPLOADS_DIR . JABD_DOWNLOADS_DIR . '/' . get_post_meta( $post_id, 'jabd_path', true ) ) {
 			if ( file_exists( $zip_path ) ) {
 				@unlink( $zip_path );
 			}
