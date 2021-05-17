@@ -73,7 +73,7 @@ class Bulk_Attachment_Download_Manager {
 		/*---------------------------------------------------------------------------------------------------------*/
 		/* Redirect to get download */
 
-		add_filter( 'single_template', array( $this, 'download_template' ) );
+		add_filter( 'single_template', array( $this, 'download_template' ), 99 );
 
 		/*---------------------------------------------------------------------------------------------------------*/
 		/* Handle ajax */

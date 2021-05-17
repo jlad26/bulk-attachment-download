@@ -108,6 +108,12 @@ as only a single default password can be set using the plugin settings.
 
 == Changelog ==
 
+= 1.3.2 =
+
+Release date:
+
+* Bug fix: Workaround for Gutenberg plugin issue [#31753](https://github.com/WordPress/gutenberg/issues/31753)
+
 = 1.3.1 =
 
 Release date: 4 January 2021
