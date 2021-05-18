@@ -85,7 +85,7 @@ but if you wanted to set the file size per user you could use this filter.
 
 ### 1.3.2
 
-Release date:
+Release date: 18 May 2021
 
 * Bug fix: Workaround for Gutenberg plugin issue [#31753](https://github.com/WordPress/gutenberg/issues/31753)
 

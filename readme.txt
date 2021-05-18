@@ -3,7 +3,7 @@ Contributors: janwyl, freemius
 Tags: bulk, download, media, images, attachments
 Requires at least: 4.6.1
 Tested up to: 5.7
-Stable tag: 1.3.1
+Stable tag: 1.3.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -110,7 +110,7 @@ as only a single default password can be set using the plugin settings.
 
 = 1.3.2 =
 
-Release date:
+Release date: 18 May 2021
 
 * Bug fix: Workaround for Gutenberg plugin issue [#31753](https://github.com/WordPress/gutenberg/issues/31753)
 
