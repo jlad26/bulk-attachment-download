@@ -108,6 +108,13 @@ as only a single default password can be set using the plugin settings.
 
 == Changelog ==
 
+= 1.3.3 =
+
+Release date: 24 January 2022
+
+* Maintenance: Update Freemius SDK
+* Maintenance: Fix deprecated warning for PHP8.0
+
 = 1.3.2 =
 
 Release date: 18 May 2021
