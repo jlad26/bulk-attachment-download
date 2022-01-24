@@ -551,7 +551,7 @@ class Bulk_Attachment_Download_Manager {
 			'<strong>',
 			'</strong>' ) . '</li>';
 		/* translators: 1: link to "Bulk downloads" 2: Opening <strong> tag 3: Closing </strong> tag */
-		$guidance_html .= '<li>' . sprintf( __( 'Your newly created zip file is ready for download on the %1$ page, accessible via sub-menu under %2$sMedia%3$s on the main toolbar. Just click the relevant %2$sDownload%3$s button and the corresponding zip file will be downloaded by your browser.', 'bulk-attachment-download' ),
+		$guidance_html .= '<li>' . sprintf( __( 'Your newly created zip file is ready for download on the %1$s page, accessible via sub-menu under %2$sMedia%3$s on the main toolbar. Just click the relevant %2$sDownload%3$s button and the corresponding zip file will be downloaded by your browser.', 'bulk-attachment-download' ),
 			'<a href="' . esc_url( admin_url( 'edit.php?post_type=jabd_download' ) ) . '">' . __( 'Bulk downloads', 'bulk-attachment-download' ) . '</a>',
 			'<strong>',
 			'</strong>' ) . '</li>';
