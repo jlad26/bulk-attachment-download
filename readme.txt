@@ -108,6 +108,12 @@ as only a single default password can be set using the plugin settings.
 
 == Changelog ==
 
+= 1.3.4 =
+
+Release date: 24 January 2022
+
+* Bug fix: Fix sprintf format typo causing PHP8.0 error
+
 = 1.3.3 =
 
 Release date: 24 January 2022
