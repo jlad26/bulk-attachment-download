@@ -83,6 +83,12 @@ but if you wanted to set the file size per user you could use this filter.
 
 ## Changelog
 
+### 1.3.5
+
+Release date: 1 March 2022
+
+* Maintenance: Update Freemius SDK
+
 ### 1.3.4
 
 Release date: 24 January 2022
