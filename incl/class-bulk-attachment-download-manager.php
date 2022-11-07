@@ -1242,6 +1242,9 @@ class Bulk_Attachment_Download_Manager {
 		if ( isset( $options['download_count'] ) ) {
 			$options['download_count']++;
 		} else {
+			if ( ! $options ) {
+				$options = array();
+			}
 			$options['download_count'] = 1;
 		}
 		update_option( 'jabd_storage', $options );
