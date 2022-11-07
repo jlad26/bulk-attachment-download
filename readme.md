@@ -83,6 +83,13 @@ but if you wanted to set the file size per user you could use this filter.
 
 ## Changelog
 
+### 1.3.6
+
+Release date: 7 November 2022
+
+* Bug fix: Fix PHP deprecation warning converting false to array
+* Maintenance: Update Freemius SDK
+
 ### 1.3.5
 
 Release date: 1 March 2022

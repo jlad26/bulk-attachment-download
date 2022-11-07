@@ -2,7 +2,7 @@
 Contributors: janwyl, freemius
 Tags: bulk, download, media, images, attachments
 Requires at least: 4.6.1
-Tested up to: 5.9
+Tested up to: 6.1
 Stable tag: 1.3.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -107,6 +107,13 @@ as only a single default password can be set using the plugin settings.
 
 
 == Changelog ==
+
+= 1.3.6 =
+
+Release date: 7 November 2022
+
+* Bug fix: Fix PHP deprecation warning converting false to array
+* Maintenance: Update Freemius SDK
 
 = 1.3.5 =
 
