@@ -108,6 +108,12 @@ as only a single default password can be set using the plugin settings.
 
 == Changelog ==
 
+= 1.3.7 =
+
+Release date: 5 July 2023
+
+* Maintenance: Update Freemius SDK
+
 = 1.3.6 =
 
 Release date: 7 November 2022
