@@ -85,7 +85,7 @@ but if you wanted to set the file size per user you could use this filter.
 
 ### 1.3.7
 
-Release date: 5 July 2023
+Release date: 6 July 2023
 
 * Maintenance: Update Freemius SDK
 

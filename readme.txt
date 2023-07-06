@@ -110,7 +110,7 @@ as only a single default password can be set using the plugin settings.
 
 = 1.3.7 =
 
-Release date: 5 July 2023
+Release date: 6 July 2023
 
 * Maintenance: Update Freemius SDK
 
