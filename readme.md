@@ -101,7 +101,7 @@ function mytheme_amend_int_sizes( $include, $int_size, $image_post ) {
 
 ### 1.3.8
 
-Release date:
+Release date: 10 December 2023
 
 * Enhancement: Add filters to allow management of which images sizes to include in download.
 * Enhancement: Modify popup to allow download directly without navigation to all downloads screen.
