@@ -3,7 +3,7 @@ Contributors: janwyl, freemius
 Tags: bulk, download, media, images, attachments
 Requires at least: 4.6.1
 Tested up to: 6.4
-Stable tag: 1.3.7
+Stable tag: 1.3.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -126,7 +126,7 @@ function mytheme_amend_int_sizes( $include, $int_size, $image_post ) {
 
 = 1.3.8 =
 
-Release date:
+Release date: 10 December 2023
 
 * Enhancement: Add filters to allow management of which images sizes to include in download.
 * Enhancement: Modify popup to allow download directly without navigation to all downloads screen.
