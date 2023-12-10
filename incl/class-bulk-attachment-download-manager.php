@@ -1347,13 +1347,17 @@ class Bulk_Attachment_Download_Manager {
 				'size'				=> 0,
 				'size_incl_int'		=> 0
 			);
+
 			$int_sizes = get_intermediate_image_sizes();
 			$upload_dir_info = wp_upload_dir();
 			
 			foreach ( $permitted_files as $permitted_file ) {
 				$file_path = get_attached_file( $permitted_file->ID, true );
 
-				if ( file_exists( $file_path ) ) { // If the file actually exists, include in stats.
+				if (
+					file_exists( $file_path ) &&
+					apply_filters( 'jabd_include_original_file', true, $permitted_file )
+				) { // If the file actually exists and is selected, include in stats.
 					$download_data['count']++;
 					$download_data['count_incl_int']++;
 					$this_file_size = @filesize( $file_path );
@@ -1364,7 +1368,10 @@ class Bulk_Attachment_Download_Manager {
 				if ( wp_attachment_is_image( $permitted_file->ID ) ) {
 					if ( ! empty( $int_sizes ) ) {
 						foreach ( $int_sizes as $size ) {
-							if ( $int_image_data = image_get_intermediate_size( $permitted_file->ID, $size ) ) {
+							if (
+								( $int_image_data = image_get_intermediate_size( $permitted_file->ID, $size ) ) &&
+								apply_filters( 'jabd_include_intermediate_image_size', true, $size, $permitted_file )
+							) {
 								$download_data['count_incl_int']++;
 								$int_filepath = false === strpos( $int_image_data['path'], $upload_dir_info['basedir'] ) ? $upload_dir_info['basedir'] . '/' . $int_image_data['path'] : $int_image_data['path'];
 								$download_data['size_incl_int'] += @filesize( $int_filepath );
@@ -1376,7 +1383,7 @@ class Bulk_Attachment_Download_Manager {
 			}
 			
 			// If we have files to assess...
-			if ( $download_data['count'] > 0 ) {
+			if ( $download_data['count_incl_int'] > 0 ) {
 				
 				$settings = get_option( 'jabd_options' );
 				$max_file_size = apply_filters( 'jabd_max_files_size', ( isset( $settings['jabd_max_size'] ) ? $settings['jabd_max_size'] : 100 ) );
@@ -1548,23 +1555,28 @@ class Bulk_Attachment_Download_Manager {
 							
 							// Add the files to the zip.
 							foreach ( $permitted_files as $permitted_file ) {
-								$file_path = get_attached_file( $permitted_file->ID, true );
 
-								if ( file_exists( $file_path ) ) { // If the file actually exists, add it to the zip file.
+								if ( apply_filters( 'jabd_include_original_file', true, $permitted_file ) ) {
 									
-									if ( $no_folders ) {
+									$file_path = get_attached_file( $permitted_file->ID, true );
+
+									if ( file_exists( $file_path ) ) { // If the file actually exists, add it to the zip file.
 										
-										// Just use filename for relative file path.
-										$relative_file_path = wp_basename( $file_path );
+										if ( $no_folders ) {
+											
+											// Just use filename for relative file path.
+											$relative_file_path = wp_basename( $file_path );
+											
+										} else {
 										
-									} else {
-									
-										// Attempt to work out the path relative to the uploads folder.
-										$relative_file_path = $this->file_path_rel_to_uploads( $file_path, $permitted_file, $upload_dir_info['basedir'] );
+											// Attempt to work out the path relative to the uploads folder.
+											$relative_file_path = $this->file_path_rel_to_uploads( $file_path, $permitted_file, $upload_dir_info['basedir'] );
+											
+										}
 										
+										$added_rel_filepaths = $this->add_file_to_zip( $zip, $file_path, $relative_file_path, $added_rel_filepaths, $zip_pword );
+
 									}
-									
-									$added_rel_filepaths = $this->add_file_to_zip( $zip, $file_path, $relative_file_path, $added_rel_filepaths, $zip_pword );
 
 								}
 								
@@ -1573,8 +1585,10 @@ class Bulk_Attachment_Download_Manager {
 									$int_sizes = get_intermediate_image_sizes();
 									if ( ! empty( $int_sizes ) ) {
 										foreach ( $int_sizes as $size ) {
-											if ( $int_image_data = image_get_intermediate_size( $permitted_file->ID, $size ) ) {
-												
+											if (
+												( $int_image_data = image_get_intermediate_size( $permitted_file->ID, $size ) ) &&
+												apply_filters( 'jabd_include_intermediate_image_size', true, $size, $permitted_file )
+											) {
 												$int_file_path = $int_image_data['path'];
 
 												// Work out relative and full filepaths.
@@ -1590,7 +1604,6 @@ class Bulk_Attachment_Download_Manager {
 												}
 												
 												$added_rel_filepaths = $this->add_file_to_zip( $zip, $int_file_path, $int_rel_filepath, $added_rel_filepaths, $zip_pword );
-
 											}
 										}
 									}
@@ -1600,45 +1613,55 @@ class Bulk_Attachment_Download_Manager {
 
 							// Close the zip.
 							$zip->close();
-							
-							if ( file_exists( $zip_path ) ) {
-							
-								// Create the download post.
-								date_default_timezone_set( 'UTC' );
 
-								$meta_input = array(
-									'jabd_path'		=> addslashes( $rel_zip_path ),
-									'jabd_expiry'	=> date( 'Y-m-d H:i:s', strtotime( '+1 hours' ) )
-								);
+							if ( $added_rel_filepaths ) {
+							
+								if ( file_exists( $zip_path ) ) {
+								
+									// Create the download post.
+									date_default_timezone_set( 'UTC' );
 
-								$store_pwd = false;
-								if ( isset( $settings['jabd_store_pwds'] ) ) {
-									if ( $settings['jabd_store_pwds'] ) {
-										$store_pwd = true;
+									$meta_input = array(
+										'jabd_path'		=> addslashes( $rel_zip_path ),
+										'jabd_expiry'	=> date( 'Y-m-d H:i:s', strtotime( '+1 hours' ) )
+									);
+
+									$store_pwd = false;
+									if ( isset( $settings['jabd_store_pwds'] ) ) {
+										if ( $settings['jabd_store_pwds'] ) {
+											$store_pwd = true;
+										}
 									}
-								}
-								if ( $zip_pword && $store_pwd ) {
-									$meta_input['jabd_pword'] = $zip_pword;
+									if ( $zip_pword && $store_pwd ) {
+										$meta_input['jabd_pword'] = $zip_pword;
+									}
+
+									$download_id = wp_insert_post( array(
+										'post_title'	=> $post_title,
+										'post_type'		=> 'jabd_download',
+										'post_status'	=> 'publish',
+										'meta_input'	=> $meta_input
+									) );
+									
+									$uploads_dir_info = wp_upload_dir();
+									$post_link = $uploads_dir_info['baseurl'] . '/' . JABD_DOWNLOADS_DIR . '/' . get_post_meta( $download_id, 'jabd_path', true );
+
+									$results_msg = '<div class="jabd-popup-msg"><span>' . __( 'Download created!', 'bulk-attachment-download' ) . '</span></div>';
+									$results_download_btn = '<a href = "' . $post_link . '"><button class="button button-primary button-large">' . __( 'Download', 'bulk-attachment-download' ) . '</button></a>&nbsp; ';
+									$results_close_btn = '<button id="jabd-close-download-popup" class="button button-primary button-large">' . __( 'Close', 'bulk-attachment-download' ) . '</button>';
+									$results_btns = '<div class="jabd-popup-buttons">' . $results_download_btn.$results_view_btn.$results_close_btn . '</div>';
+									$results_view_link = '<div class=jabd-view-downloads-link"><a href = "' . admin_url( 'edit.php?post_type=jabd_download' ) . '">' . __( 'View all downloads', 'bulk-attachment-download' ) . '</a></div>';
+
+									$ajax_result = array(
+										'messages'	=> $results_msg . $results_btns . $results_view_link
+									);
+								
+								} else { // ...zip file does not exist...
+									$permissions_errors[] = __( 'Error. Your download could not be created.', 'bulk-attachment-download' );
 								}
 
-								$download_id = wp_insert_post( array(
-									'post_title'	=> $post_title,
-									'post_type'		=> 'jabd_download',
-									'post_status'	=> 'publish',
-									'meta_input'	=> $meta_input
-								) );
-								
-								$results_msg = '<div class="jabd-popup-msg"><span>' . __( 'Download created!', 'bulk-attachment-download' ) . '</span></div>';
-								$results_view_btn = '<a href = "' . admin_url( 'edit.php?post_type=jabd_download' ) . '"><button class="button button-primary button-large">' . __( 'View', 'bulk-attachment-download' ) . '</button></a>&nbsp; ';
-								$results_close_btn = '<button id="jabd-close-download-popup" class="button button-primary button-large">' . __( 'Close', 'bulk-attachment-download' ) . '</button>';
-								$results_btns = '<div class="jabd-popup-buttons">' . $results_view_btn.$results_close_btn . '</div>';
-								
-								$ajax_result = array(
-									'messages'	=> $results_msg . $results_btns
-								);
-							
-							} else { // ...zip file does not exist...
-								$permissions_errors[] = __( 'Error. Your download could not be created.', 'bulk-attachment-download' );
+							} else { // ...no files added to the zip...
+								$permissions_errors[] = __( 'Error. Your download could not be created because no files were selected. Are you filtering out all the image sizes using filters ? (jabd_include_intermediate_image_size and/or jabd_include_original_file)', 'bulk-attachment-download' );
 							}
 							
 						} else { // ...zip file could not be created...
