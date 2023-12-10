@@ -99,6 +99,22 @@ but you can also use this filter for more granular control, for example if you w
 * `jabd_zip_password`. Use this filter to amend a zip file password. One scenario might be to use different fixed passwords for different users or user groups,
 as only a single default password can be set using the plugin settings.
 * `jabd_file_path_rel_to_uploads`. Used to amend the path of an attachment relative to the uploads folder.
+* `jabd_include_original_file`. Used to include or exclude the original file. Example to exclude the original :
+```
+add_filter( 'jabd_include_original_file', 'mytheme_remove_original_file', 10, 2 );
+function mytheme_remove_original_file( $include, $image_post ) {
+	return false;
+}
+```
+NB if you exclude the original and don't select intermediate files sizes, you have nothing to download !
+
+* `jabd_include_intermediate_image_size`. Used to include or exclude intermediate image size. Example to include only medium and large sizes :
+```
+add_filter( 'jabd_include_intermediate_image_size', 'mytheme_amend_int_sizes', 10, 3 );
+function mytheme_amend_int_sizes( $include, $int_size, $image_post ) {
+	return in_array( $int_size, ['medium', 'large'] );
+}
+```
 
 == Screenshots ==
 
@@ -107,6 +123,13 @@ as only a single default password can be set using the plugin settings.
 
 
 == Changelog ==
+
+= 1.3.8 =
+
+Release date:
+
+* Enhancement: Add filters to allow management of which images sizes to include in download.
+* Enhancement: Modify popup to allow download directly without navigation to all downloads screen.
 
 = 1.3.7 =
 
