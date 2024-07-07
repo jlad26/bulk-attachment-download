@@ -3,7 +3,7 @@ Contributors: janwyl, freemius
 Tags: bulk, download, media, images, attachments
 Requires at least: 4.6.1
 Tested up to: 6.6
-Stable tag: 1.3.8
+Stable tag: 1.3.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
