@@ -2,7 +2,7 @@
 Contributors: janwyl, freemius
 Tags: bulk, download, media, images, attachments
 Requires at least: 4.6.1
-Tested up to: 6.5
+Tested up to: 6.6
 Stable tag: 1.3.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -90,6 +90,11 @@ That means that if the Wordpress default roles and capabilities are being used:
 
 Probably because you are using the standard Windows zip facility, which will not work. Try 7-Zip instead.
 
+= Why does Chrome block my downloads? =
+
+You may find that Google Chrome gives you a warning and asks you to confirm if you want to download the file.
+This is standard behaviour for Google Chrome because the file is a zip file (more info [here](https://support.google.com/chrome/answer/6261569?hl=en)).
+
 = What filters are available? =
 
 * `jabd_max_files_size`. Max download file size limit is set in the plugin settings in Settings > Media,
@@ -123,6 +128,12 @@ function mytheme_amend_int_sizes( $include, $int_size, $image_post ) {
 
 
 == Changelog ==
+
+== 1.3.9 ==
+
+Release date: 7 July 2024
+
+* Maintenance: Added FAQ on Google Chrome blocking downloads.
 
 = 1.3.8 =
 
